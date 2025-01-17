@@ -9,6 +9,12 @@ package chess;
 public class ChessMove {
 
     @Override
+    public String toString() {
+        return String.format("(%s, %s, %s)", startPosition, endPosition, promotionPiece);
+    }
+
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
