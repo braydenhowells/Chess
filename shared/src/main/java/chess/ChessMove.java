@@ -8,10 +8,18 @@ package chess;
  */
 public class ChessMove {
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessMove that = (ChessMove) o;
+        return startPosition.equals(that.startPosition) && endPosition.equals(that.endPosition) && promotionPiece == that.promotionPiece;
+    }
 
-    private ChessPosition startPosition;
-    private ChessPosition endPosition;
-    private ChessPiece.PieceType promotionPiece;
+    private final ChessPosition startPosition;
+    private final ChessPosition endPosition;
+    private final ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
@@ -41,6 +49,6 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        return promotionPiece;
+        return this.promotionPiece;
     }
 }

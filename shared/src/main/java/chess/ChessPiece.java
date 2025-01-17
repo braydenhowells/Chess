@@ -10,7 +10,14 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessPiece {
-
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
 
     private ChessGame.TeamColor pieceColor;
     private PieceType type;
