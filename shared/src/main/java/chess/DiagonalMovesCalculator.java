@@ -8,7 +8,7 @@ public class DiagonalMovesCalculator {
     private ChessPiece piece;
     private ChessPosition position;
 
-    public Collection<ChessMove> diagonalMoves(ChessPiece piece, ChessPosition currentPos, ChessBoard board, Collection<ChessMove> moves, boolean limit, int updownValue, int leftrightValue) {
+    public Collection<ChessMove> diagonalMoves(ChessPiece piece, ChessPosition originalPos, ChessPosition currentPos, ChessBoard board, Collection<ChessMove> moves, boolean limit, int updownValue, int leftrightValue) {
         // see if diagonal move is possible, then recurse
         int currentRow = currentPos.getRow();
         int currentColumn = currentPos.getColumn();
@@ -57,14 +57,14 @@ public class DiagonalMovesCalculator {
             return moves; // stop collecting moves after we find a piece, regardless of its color
         }
         // action of recursion now that we haven't hit the base cases: add target move to collection
-        ChessMove targetMove = new ChessMove(currentPos, targetEndPosition, null);
+        ChessMove targetMove = new ChessMove(originalPos, targetEndPosition, null);
         moves.add(targetMove);
         // if there is a limit, we should only get the diagonal for 1 space away. we already did that ^ so we return
         if (limit) {
             return moves;
         }
         // recurse
-        diagonalMoves(piece, targetEndPosition, board, moves, false, updownValue, leftrightValue);
+        diagonalMoves(piece, originalPos, targetEndPosition, board, moves, false, updownValue, leftrightValue);
         return moves;
     }
 

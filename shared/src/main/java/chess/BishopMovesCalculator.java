@@ -17,13 +17,13 @@ public class BishopMovesCalculator {
         moves = new ArrayList<>();
 
         // top right
-        moves = Calc.diagonalMoves(piece, position, board, moves, false, 1, 1);
+        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, 1, 1);
         // top left
-        moves = Calc.diagonalMoves(piece, position, board, moves, false, 1, -1);
+        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, 1, -1);
         // bottom right
-        moves = Calc.diagonalMoves(piece, position, board, moves, false, -1, 1);
+        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, -1, 1);
         // bottom left
-        moves = Calc.diagonalMoves(piece, position, board, moves, false, -1, -1);
+        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, -1, -1);
         // convert to string here?
         return moves;
     }
