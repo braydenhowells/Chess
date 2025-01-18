@@ -64,6 +64,17 @@ public class ChessPiece {
         if (type == PieceType.BISHOP) {
             return new BishopMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
         }
+        if (type == PieceType.ROOK) {
+            return new RookMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
+        }
+        if (type == PieceType.QUEEN) {
+            Collection<ChessMove> rookMoves = new RookMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
+            Collection<ChessMove> bishopMoves = new BishopMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
+            Collection<ChessMove> allMoves = new ArrayList<>();
+            allMoves.addAll(rookMoves);
+            allMoves.addAll(bishopMoves);
+            return allMoves;
+        }
         return new BishopMovesCalculator().getMoves(ChessPiece.this, board, myPosition); // bogus so that the code will run
     }
 }
