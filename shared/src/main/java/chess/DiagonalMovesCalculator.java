@@ -50,7 +50,7 @@ public class DiagonalMovesCalculator {
             // this checks if the space is occupied at all. if it is not, we keep going
             if (!board.getPiece(targetEndPosition).getTeamColor().equals(piece.getTeamColor())) {
                 // this path means that another piece was detected, but we can capture it. we will add this move to our list and then return
-                ChessMove targetMove = new ChessMove(currentPos, targetEndPosition, null);
+                ChessMove targetMove = new ChessMove(originalPos, targetEndPosition, null);
                 moves.add(targetMove);
             }
             // this path means the two pieces are the same color. that means we can't move there, so we return
