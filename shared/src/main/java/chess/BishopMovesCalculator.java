@@ -13,7 +13,7 @@ public class BishopMovesCalculator {
 
     public Collection<ChessMove> getMoves(ChessPiece piece, ChessBoard board, ChessPosition position) {
 
-        DiagonalMovesCalculator Calc = new DiagonalMovesCalculator();
+        MovesCalculator Calc = new MovesCalculator();
         moves = new ArrayList<>();
 
         // top right

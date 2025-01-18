@@ -2,7 +2,7 @@ package chess;
 
 import java.util.Collection;
 
-public class DiagonalMovesCalculator {
+public class MovesCalculator {
     private ChessBoard board;
     private Collection<ChessMove> moves;
     private ChessPiece piece;

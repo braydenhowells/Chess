@@ -13,7 +13,7 @@ public class RookMovesCalculator {
 
     public Collection<ChessMove> getMoves(ChessPiece piece, ChessBoard board, ChessPosition position) {
 
-        DiagonalMovesCalculator Calc = new DiagonalMovesCalculator();
+        MovesCalculator Calc = new MovesCalculator();
         moves = new ArrayList<>();
 
         // up
