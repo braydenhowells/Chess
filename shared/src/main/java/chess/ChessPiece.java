@@ -81,6 +81,9 @@ public class ChessPiece {
         if (type == PieceType.KNIGHT) {
             return new KnightMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
         }
+        if (type == PieceType.PAWN) {
+            return new PawnMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
+        }
         return new BishopMovesCalculator().getMoves(ChessPiece.this, board, myPosition); // bogus so that the code will run
     }
 }

@@ -17,17 +17,17 @@ public class KnightMovesCalculator {
         moves = new ArrayList<>();
 
         // top right
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 2, 1);
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 1, 2);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 2, 1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 1, 2);
         // top left
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 2, -1);
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 1, -2);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 2, -1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 1, -2);
         // bottom right
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, -2, 1);
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, -1, 2);
+        moves = Calc.Moves(piece, position, position, board, moves, true, -2, 1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, -1, 2);
         // bottom left
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, -2, -1);
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, -1, -2);
+        moves = Calc.Moves(piece, position, position, board, moves, true, -2, -1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, -1, -2);
         return moves;
     }
 }

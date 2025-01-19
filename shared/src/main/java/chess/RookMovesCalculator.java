@@ -15,15 +15,14 @@ public class RookMovesCalculator {
 
         MovesCalculator Calc = new MovesCalculator();
         moves = new ArrayList<>();
-
         // up
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, 1, 0);
+        moves = Calc.Moves(piece, position, position, board, moves, false, 1, 0);
         // left
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, 0, -1);
+        moves = Calc.Moves(piece, position, position, board, moves, false, 0, -1);
         // right
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, 0, 1);
+        moves = Calc.Moves(piece, position, position, board, moves, false, 0, 1);
         // down
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, false, -1, 0);
+        moves = Calc.Moves(piece, position, position, board, moves, false, -1, 0);
         return moves;
     }
 }

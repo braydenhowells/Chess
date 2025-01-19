@@ -17,21 +17,21 @@ public class KingMovesCalculator {
         moves = new ArrayList<>();
 
         // top right
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 1, 1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 1, 1);
         // top left
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 1, -1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 1, -1);
         // bottom right
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, -1, 1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, -1, 1);
         // bottom left
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, -1, -1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, -1, -1);
         // up
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 1, 0);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 1, 0);
         // left
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 0, -1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 0, -1);
         // right
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, 0, 1);
+        moves = Calc.Moves(piece, position, position, board, moves, true, 0, 1);
         // down
-        moves = Calc.diagonalMoves(piece, position, position, board, moves, true, -1, 0);
+        moves = Calc.Moves(piece, position, position, board, moves, true, -1, 0);
         return moves;
     }
 }

@@ -8,9 +8,11 @@ public class MovesCalculator {
     private ChessPiece piece;
     private ChessPosition position;
 
-    public Collection<ChessMove> diagonalMoves(ChessPiece piece, ChessPosition originalPos, ChessPosition currentPos, ChessBoard board, Collection<ChessMove> moves, boolean limit, int updownValue, int leftrightValue) {
+    public Collection<ChessMove> Moves(ChessPiece piece, ChessPosition originalPos, ChessPosition currentPos, ChessBoard board, Collection<ChessMove> moves, boolean limit, int updownValue, int leftrightValue) {
         // recursive function to get all possible moves based off of parameters^
+        // takes an original position and incrementally adds moves possible FROM that position TO new positions indicated
         // works for straight, diagonal, and L shaped moves via leftright </> and updown +/- values
+
         int currentRow = currentPos.getRow();
         int currentColumn = currentPos.getColumn();
         System.out.println("Current Position: " + currentPos);
@@ -21,7 +23,7 @@ public class MovesCalculator {
         int targetColumn = currentColumn + leftrightValue;
         ChessPosition targetEndPosition = new ChessPosition(targetRow, targetColumn);
 
-        // base case: we want an out-of-bounds move, signals recursion stop
+        // base case: we are trying an out-of-bounds move, signals recursion stop
         if (targetColumn > 8 || targetRow > 8 || targetColumn < 1 || targetRow < 1) {
             System.out.println("Out of bounds!");
             System.out.println("Target Position: " + targetEndPosition);
@@ -53,7 +55,7 @@ public class MovesCalculator {
 
         // recurse for pieces like rook, bishop, and queen
         // these pieces have no movement limit and can move until blocked or on the edge of the board
-        diagonalMoves(piece, originalPos, targetEndPosition, board, moves, false, updownValue, leftrightValue);
+        Moves(piece, originalPos, targetEndPosition, board, moves, false, updownValue, leftrightValue);
         return moves;
     }
 }
