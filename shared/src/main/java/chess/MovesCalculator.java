@@ -9,70 +9,50 @@ public class MovesCalculator {
     private ChessPosition position;
 
     public Collection<ChessMove> diagonalMoves(ChessPiece piece, ChessPosition originalPos, ChessPosition currentPos, ChessBoard board, Collection<ChessMove> moves, boolean limit, int updownValue, int leftrightValue) {
-        // see if diagonal move is possible, then recurse
+        // recursive function to get all possible moves based off of parameters^
+        // works for straight, diagonal, and L shaped moves via leftright </> and updown +/- values
         int currentRow = currentPos.getRow();
         int currentColumn = currentPos.getColumn();
-        System.out.println("Current Position: (" + currentRow + ", " + currentColumn + ")");
+        System.out.println("Current Position: " + currentPos);
         System.out.println("updownValue: " + updownValue + ", leftrightValue: " + leftrightValue);
 
-    // all "edge" base cases, checking if our next move would send us out of bounds
-        // base case 1
-        if (currentRow == 1 && updownValue == -1) {
-            // this is the bottom most row
-            System.out.println("Base Case 1: Hit the topmost row. Stopping recursion.");
-            return moves;
-        }
-        // base case 2
-        if (currentColumn == 8 && leftrightValue == 1) {
-            // this is the right most column
-            System.out.println("Base Case 2: Hit the rightmost column. Stopping recursion.");
-            return moves;
-        }
-        // base case 3
-        if (currentRow == 8 && updownValue == 1) {
-            // this is the top most row
-            System.out.println("Base Case 3: Hit the bottommost row. Stopping recursion.");
-            return moves;
-        }
-        // base case 4
-        if (currentColumn == 1 && leftrightValue == -1) {
-            // this is the left most column
-            System.out.println("Base Case 4: Hit the leftmost column. Stopping recursion.");
-            return moves;
-        }
-
-        // make a target move to see if we can go there. this move is based on what kind of directions we pass in
+        // make a target position to see if we can go there. this move is based on what kind of directions we pass in (params)
         int targetRow = currentRow + updownValue;
         int targetColumn = currentColumn + leftrightValue;
         ChessPosition targetEndPosition = new ChessPosition(targetRow, targetColumn);
-        if (targetColumn > 8 || targetRow > 8 || targetColumn < 0 || targetRow < 0) {
+
+        // base case: we want an out-of-bounds move, signals recursion stop
+        if (targetColumn > 8 || targetRow > 8 || targetColumn < 1 || targetRow < 1) {
             System.out.println("Out of bounds!");
             System.out.println("Target Position: " + targetEndPosition);
             return moves;
         }
 
-        //not a base case necessarily, but check if anyone is on the target square
+        //base case: square we want to move to is occupied, by either team
         if (board.getPiece(targetEndPosition) != null) {
-            // this checks if the space is occupied at all. if it is not, we keep going
             if (!board.getPiece(targetEndPosition).getTeamColor().equals(piece.getTeamColor())) {
                 // this path means that another piece was detected, but we can capture it. we will add this move to our list and then return
                 ChessMove targetMove = new ChessMove(originalPos, targetEndPosition, null);
                 moves.add(targetMove);
             }
-            // this path means the two pieces are the same color. that means we can't move there, so we return
-            return moves; // stop collecting moves after we find a piece, regardless of its color
+            // this path: our own teammate is on this square, so we just return
+            return moves;
+            // ^^ stop collecting moves now, regardless of which color piece we ran into
         }
 
-        // action of recursion now that we haven't hit the base cases: add target move to collection
-        ChessMove targetMove = new ChessMove(originalPos, targetEndPosition, null);
-        moves.add(targetMove);
+        // passed base cases? make a new move from ORIGINAL position to TARGET position
+        ChessMove newMove = new ChessMove(originalPos, targetEndPosition, null);
+        moves.add(newMove);
 
-        // if there is a limit, we should only get the diagonal for 1 space away. we already did that ^ so we return
+        // pieces like the king and the knight do not want recursion, as they can only move 1 unit
+        // the king has a unit of 1 move, the knight has a unit of 1 L-shaped move
+        // the limit param will stop after calculating just 1 unit of movement, instead of repeatedly chaining those units
         if (limit) {
             return moves;
         }
 
-        // recurse
+        // recurse for pieces like rook, bishop, and queen
+        // these pieces have no movement limit and can move until blocked or on the edge of the board
         diagonalMoves(piece, originalPos, targetEndPosition, board, moves, false, updownValue, leftrightValue);
         return moves;
     }
