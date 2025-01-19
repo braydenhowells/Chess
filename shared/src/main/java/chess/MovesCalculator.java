@@ -41,8 +41,15 @@ public class MovesCalculator {
             return moves;
         }
 
-        // make a target move to see if we can go there. this move is based on what kind of diagonal direction we pass in
-        ChessPosition targetEndPosition = new ChessPosition(  currentRow + updownValue, currentColumn + leftrightValue);
+        // make a target move to see if we can go there. this move is based on what kind of directions we pass in
+        int targetRow = currentRow + updownValue;
+        int targetColumn = currentColumn + leftrightValue;
+        ChessPosition targetEndPosition = new ChessPosition(targetRow, targetColumn);
+        if (targetColumn > 8 || targetRow > 8 || targetColumn < 0 || targetRow < 0) {
+            System.out.println("Out of bounds!");
+            System.out.println("Target Position: " + targetEndPosition);
+            return moves;
+        }
 
         //not a base case necessarily, but check if anyone is on the target square
         if (board.getPiece(targetEndPosition) != null) {
