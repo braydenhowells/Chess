@@ -17,11 +17,38 @@ public class PawnMovesCalculator {
         moves = new ArrayList<>();
 
         // white piece moveset
-        // one space movement option
-        moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, 1);
-        // two space movement option (initial)
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            // one space movement option
+            moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, 1);
+            // two space movement option (initial)
+            if (position.getRow() == 2) {
+                moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, 2);
+            }
+            // diagonal capture options (opposite piece color)
+            moves = StupidCalc.PawnMoves(piece, position, board, moves, -1, 1);
+            moves = StupidCalc.PawnMoves(piece, position, board, moves, 1, 1);
+        }
 
-        // diagonal capture options (opposite piece color)
+        // black piece moveset
+        if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            // one space movement option
+            moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, -1);
+            // two space movement option (initial)
+            if (position.getRow() == 7) {
+                moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, -2);
+            }
+            // diagonal capture options (opposite piece color)
+            moves = StupidCalc.PawnMoves(piece, position, board, moves, -1, -1);
+            moves = StupidCalc.PawnMoves(piece, position, board, moves, 1, -1);
+        }
+
+
+
+
+
+
+
+
 
         // ^^ promotional options for edge rows via capture or one space movement, calculated by target position
         // if we have target on the edge, make the target move with 4 enums to give promotion options
