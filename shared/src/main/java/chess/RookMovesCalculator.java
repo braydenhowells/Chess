@@ -12,17 +12,15 @@ public class RookMovesCalculator {
 
 
     public Collection<ChessMove> getMoves(ChessPiece piece, ChessBoard board, ChessPosition position) {
-
-        MovesCalculator Calc = new MovesCalculator();
         moves = new ArrayList<>();
         // up
-        moves = Calc.Moves(piece, position, position, board, moves, false, 1, 0);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, 1, 0);
         // left
-        moves = Calc.Moves(piece, position, position, board, moves, false, 0, -1);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, 0, -1);
         // right
-        moves = Calc.Moves(piece, position, position, board, moves, false, 0, 1);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, 0, 1);
         // down
-        moves = Calc.Moves(piece, position, position, board, moves, false, -1, 0);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, -1, 0);
         return moves;
     }
 }

@@ -1,14 +1,16 @@
 package chess;
 
+import java.awt.*;
 import java.util.Collection;
 
 public class StupidPawnEdgeCasesCalculator {
-    private ChessBoard board;
-    private Collection<ChessMove> moves;
-    private ChessPiece piece;
-    private ChessPosition position;
-
-    public Collection<ChessMove> PawnMoves(ChessPiece piece, ChessPosition originalPos, ChessBoard board, Collection<ChessMove> moves, int leftrightValue, int updownValue) {
+// not recursive, just returns the 1 style of move we give it for the pawn. static so we control with params
+    public static Collection<ChessMove> PawnMoves(ChessPiece piece,
+                                                  ChessPosition originalPos,
+                                                  ChessBoard board,
+                                                  Collection<ChessMove> moves,
+                                                  int leftrightValue,
+                                                  int updownValue) {
         // returns just one of the possible moves for a pawn. params are for differences in white and black pawns
         // setup
         int originalRow = originalPos.getRow();
@@ -62,10 +64,7 @@ public class StupidPawnEdgeCasesCalculator {
         if (leftrightValue != 0) {
             if (board.getPiece(targetEndPosition) != null && board.getPiece(targetEndPosition).getTeamColor() != piece.getTeamColor()) {
                 if (promote) {
-                    moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.KNIGHT));
-                    moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.QUEEN));
+                    moves = addPromotionMoves(moves, originalPos, targetEndPosition);
                     return moves;
                 }
                 else {
@@ -79,14 +78,22 @@ public class StupidPawnEdgeCasesCalculator {
 
         // passed all checks? make a new move from ORIGINAL position to TARGET position
         if (promote) {
-            moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.ROOK));
-            moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.KNIGHT));
-            moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.BISHOP));
-            moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.QUEEN));
+            moves = addPromotionMoves(moves, originalPos, targetEndPosition);
             return moves;
         } else {
             moves.add(new ChessMove(originalPos, targetEndPosition, null));
             return moves;
         }
     }
+
+    // func to add all possible promo moves for a pawn
+    private static Collection<ChessMove> addPromotionMoves(Collection<ChessMove> moves, ChessPosition originalPos, ChessPosition targetEndPosition) {
+        moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.ROOK));
+        moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.KNIGHT));
+        moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.BISHOP));
+        moves.add(new ChessMove(originalPos, targetEndPosition, ChessPiece.PieceType.QUEEN));
+        return moves;
+    }
 }
+
+
