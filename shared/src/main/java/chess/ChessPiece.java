@@ -25,8 +25,8 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
-    private ChessGame.TeamColor pieceColor;
-    private PieceType type;
+    private final ChessGame.TeamColor pieceColor;
+    private PieceType type; // not final because panws can change
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -49,14 +49,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return pieceColor;
+        return this.pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return type;
+        return this.type;
     }
 
     /**
@@ -67,13 +67,13 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if (type == PieceType.BISHOP) {
+        if (this.type == PieceType.BISHOP) {
             return new BishopMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
         }
-        if (type == PieceType.ROOK) {
+        if (this.type == PieceType.ROOK) {
             return new RookMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
         }
-        if (type == PieceType.QUEEN) {
+        if (this.type == PieceType.QUEEN) {
             Collection<ChessMove> rookMoves = new RookMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
             Collection<ChessMove> bishopMoves = new BishopMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
             Collection<ChessMove> allMoves = new ArrayList<>();
@@ -81,15 +81,12 @@ public class ChessPiece {
             allMoves.addAll(bishopMoves);
             return allMoves;
         }
-        if (type == PieceType.KING) {
+        if (this.type == PieceType.KING) {
             return new KingMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
         }
-        if (type == PieceType.KNIGHT) {
+        if (this.type == PieceType.KNIGHT) {
             return new KnightMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
         }
-        if (type == PieceType.PAWN) {
-            return new PawnMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
-        }
-        return new BishopMovesCalculator().getMoves(ChessPiece.this, board, myPosition); // bogus so that the code will run
+        return new PawnMovesCalculator().getMoves(ChessPiece.this, board, myPosition);
     }
 }

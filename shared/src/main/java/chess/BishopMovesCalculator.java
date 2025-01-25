@@ -12,18 +12,16 @@ public class BishopMovesCalculator {
 
 
     public Collection<ChessMove> getMoves(ChessPiece piece, ChessBoard board, ChessPosition position) {
-
-        MovesCalculator Calc = new MovesCalculator();
         moves = new ArrayList<>();
 
         // top right
-        moves = Calc.Moves(piece, position, position, board, moves, false, 1, 1);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, 1, 1);
         // top left
-        moves = Calc.Moves(piece, position, position, board, moves, false, 1, -1);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, 1, -1);
         // bottom right
-        moves = Calc.Moves(piece, position, position, board, moves, false, -1, 1);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, -1, 1);
         // bottom left
-        moves = Calc.Moves(piece, position, position, board, moves, false, -1, -1);
+        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, -1, -1);
         return moves;
     }
 }

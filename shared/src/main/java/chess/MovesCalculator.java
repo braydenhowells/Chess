@@ -3,12 +3,17 @@ package chess;
 import java.util.Collection;
 
 public class MovesCalculator {
-    private ChessBoard board;
-    private Collection<ChessMove> moves;
-    private ChessPiece piece;
-    private ChessPosition position;
+    // recursive function for this class, static because we just control it with params
+    public static Collection<ChessMove> Moves(ChessPiece piece,
+                                              ChessPosition originalPos,
+                                              ChessPosition currentPos,
+                                              ChessBoard board,
+                                              Collection<ChessMove> moves,
+                                              boolean limit,
+                                              int updownValue,
+                                              int leftrightValue) { // found out you can split these to see them better
 
-    public Collection<ChessMove> Moves(ChessPiece piece, ChessPosition originalPos, ChessPosition currentPos, ChessBoard board, Collection<ChessMove> moves, boolean limit, int updownValue, int leftrightValue) {
+
         // recursive function to get all possible moves based off of parameters^
         // takes an original position and incrementally adds moves possible FROM that position TO new positions indicated
         // works for straight, diagonal, and L shaped moves via leftright </> and updown +/- values

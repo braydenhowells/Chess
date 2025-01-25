@@ -40,6 +40,7 @@ public class StupidPawnEdgeCasesCalculator {
             return moves;
         }
 
+        // white pawn 2 space movement: moving forward must be entirely cleared
         if (updownValue == -2) {
             ChessPosition dummyPosition = new ChessPosition(targetRow + 1, targetColumn);
             if (board.getPiece(dummyPosition) != null) {
@@ -48,6 +49,7 @@ public class StupidPawnEdgeCasesCalculator {
             }
         }
 
+        // black pawn 2 space movement: moving forward must be entirely cleared
         if (updownValue == 2) {
             ChessPosition dummyPosition = new ChessPosition(targetRow - 1, targetColumn);
             if (board.getPiece(dummyPosition) != null) {
@@ -71,10 +73,9 @@ public class StupidPawnEdgeCasesCalculator {
                     return moves;
                 }
             }
-            // this path means there is nobody for us to capture
+            // this path means there is nobody for us to capture in our diagonal quest
             return moves;
         }
-
 
         // passed all checks? make a new move from ORIGINAL position to TARGET position
         if (promote) {
