@@ -2,7 +2,7 @@ package chess;
 
 import java.util.Collection;
 
-public class MovesCalculator {
+public class UnitMovesCalculator {
     // recursive function for this class, static because we just control it with params
     public static Collection<ChessMove> Moves(ChessPiece piece,
                                               ChessPosition originalPos,

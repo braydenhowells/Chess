@@ -13,76 +13,33 @@ public class PawnMovesCalculator {
 
     public Collection<ChessMove> getMoves(ChessPiece piece, ChessBoard board, ChessPosition position) {
         // this will use a special calculator for the variety of moves and promotional options that a pawn has
-        StupidPawnEdgeCasesCalculator StupidCalc = new StupidPawnEdgeCasesCalculator();
         moves = new ArrayList<>();
 
         // white piece moveset
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             // one space movement option
-            moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, 1);
+            moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, 0, 1);
             // two space movement option (initial)
             if (position.getRow() == 2) {
-                moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, 2);
+                moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, 0, 2);
             }
             // diagonal capture options (opposite piece color)
-            moves = StupidCalc.PawnMoves(piece, position, board, moves, -1, 1);
-            moves = StupidCalc.PawnMoves(piece, position, board, moves, 1, 1);
+            moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, -1, 1);
+            moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, 1, 1);
         }
 
         // black piece moveset
         if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
             // one space movement option
-            moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, -1);
+            moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, 0, -1);
             // two space movement option (initial)
             if (position.getRow() == 7) {
-                moves = StupidCalc.PawnMoves(piece, position, board, moves, 0, -2);
+                moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, 0, -2);
             }
             // diagonal capture options (opposite piece color)
-            moves = StupidCalc.PawnMoves(piece, position, board, moves, -1, -1);
-            moves = StupidCalc.PawnMoves(piece, position, board, moves, 1, -1);
+            moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, -1, -1);
+            moves = SpecialMovesCalculator.PawnMoves(piece, position, board, moves, 1, -1);
         }
-
-
-
-
-
-
-
-
-
-        // ^^ promotional options for edge rows via capture or one space movement, calculated by target position
-        // if we have target on the edge, make the target move with 4 enums to give promotion options
-        // ^^ this only happens when a move is completely validated w bounds and blockage
-
-        // ^^ bounds check
-
-        // blocked check (either color) for 2, and 1 space movement
-
-        // pawn will only move forward based on piece type for capture or any movement, from color param
-
-
-
-
-
-
-        // black piece moveset
-        // one space movement option
-
-        // two space movement option (initial)
-
-        // diagonal capture options (opposite piece color)
-
-        // ^^ promotional options for edge rows via capture or one space movement, calculated by target position
-        // if we have target on the edge, make the target move with 4 enums to give promotion options
-        // ^^ this only happens when a move is completely validated w bounds and blockage
-
-        // ^^ bounds check
-
-        // blocked check (either color) for 2, and 1 space movement
-
-        // pawn will only move forward based on piece type for capture or any movement, from color param
-
-
         return moves;
     }
 }

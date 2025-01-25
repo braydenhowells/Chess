@@ -1,9 +1,8 @@
 package chess;
 
-import java.awt.*;
 import java.util.Collection;
 
-public class StupidPawnEdgeCasesCalculator {
+public class SpecialMovesCalculator {
 // not recursive, just returns the 1 style of move we give it for the pawn. static so we control with params
     public static Collection<ChessMove> PawnMoves(ChessPiece piece,
                                                   ChessPosition originalPos,

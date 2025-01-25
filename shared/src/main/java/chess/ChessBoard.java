@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -12,8 +11,7 @@ import java.util.Objects;
  */
 public class ChessBoard {
     private ChessPiece[][] squares = new ChessPiece[8][8];
-    public ChessBoard() {
-    }
+    public ChessBoard() {}
 
     @Override
     public boolean equals(Object o) {
@@ -74,8 +72,10 @@ public class ChessBoard {
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
+
+
     public void resetBoard() {
-        squares = new ChessPiece[8][8];
+        squares = new ChessPiece[8][8]; // overwrites our old board, with empty pieces (then we fill em)
         // list for looping
         ChessPiece.PieceType[] pieces = {ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK};
 

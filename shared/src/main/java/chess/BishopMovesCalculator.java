@@ -15,13 +15,13 @@ public class BishopMovesCalculator {
         moves = new ArrayList<>();
 
         // top right
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, 1, 1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, 1, 1);
         // top left
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, 1, -1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, 1, -1);
         // bottom right
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, -1, 1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, -1, 1);
         // bottom left
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, false, -1, -1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, -1, -1);
         return moves;
     }
 }

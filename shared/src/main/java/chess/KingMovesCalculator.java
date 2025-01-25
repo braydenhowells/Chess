@@ -15,21 +15,21 @@ public class KingMovesCalculator {
         moves = new ArrayList<>();
 
         // top right
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, 1, 1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, 1, 1);
         // top left
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, 1, -1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, 1, -1);
         // bottom right
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, -1, 1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, -1, 1);
         // bottom left
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, -1, -1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, -1, -1);
         // up
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, 1, 0);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, 1, 0);
         // left
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, 0, -1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, 0, -1);
         // right
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, 0, 1);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, 0, 1);
         // down
-        moves = MovesCalculator.Moves(piece, position, position, board, moves, true, -1, 0);
+        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, true, -1, 0);
         return moves;
     }
 }
