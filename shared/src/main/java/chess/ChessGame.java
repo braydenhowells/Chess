@@ -13,10 +13,8 @@ public class ChessGame {
     private ChessBoard board;
     private TeamColor turn;
     private ChessMove LastOpponentMove;
-    private Collection<ChessPosition> BlackPositionsOccupied;
-    private Collection<ChessPosition> WhitePositionsOccupied;
-    private Collection<ChessMove> BlackValidMoves;
-    private Collection<ChessMove> WhiteValidMoves;
+    private Collection<ChessMove> BlackMoves;
+    private Collection<ChessMove> WhiteMoves;
     private ChessPosition WhiteKingPosition;
     private ChessPosition BlackKingPosition;
 
@@ -28,31 +26,30 @@ public class ChessGame {
         gameBoard.resetBoard();
         this.board = gameBoard;
         this.turn = TeamColor.WHITE;
-        this.WhitePositionsOccupied = new ArrayList<>();
-        this.BlackPositionsOccupied = new ArrayList<>();
-        this.BlackValidMoves = new ArrayList<>();
-        this.WhiteValidMoves = new ArrayList<>();
+        this.BlackMoves = new ArrayList<>();
+        this.WhiteMoves = new ArrayList<>();
         this.WhiteKingPosition = new ChessPosition(1, 5);
         this.BlackKingPosition = new ChessPosition(8, 5);
 
 
 
-        // add the starting positions into our positions lists
+        // get all the moves we can make for either team. this will be used to see if we are in check
         // royalty white
         for (int i = 1; i < 9; i++) {
-            WhitePositionsOccupied.add(new ChessPosition(1, i));
+            WhiteMoves.addAll(validMoves(new ChessPosition(1, i)));
         }
         // pawns white
         for (int i = 1; i < 9; i++) {
-            WhitePositionsOccupied.add(new ChessPosition(2, i));
+            WhiteMoves.addAll(validMoves(new ChessPosition(2, i)));
         }
-        // royalty black
+
+        // royalty white
         for (int i = 1; i < 9; i++) {
-            BlackPositionsOccupied.add(new ChessPosition(8, i));
+            BlackMoves.addAll(validMoves(new ChessPosition(8, i)));
         }
-        // pawns black
+        // pawns white
         for (int i = 1; i < 9; i++) {
-            BlackPositionsOccupied.add(new ChessPosition(7, i));
+            BlackMoves.addAll(validMoves(new ChessPosition(7, i)));
         }
     }
 
@@ -105,10 +102,26 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // setup
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
-        ChessPiece piece = this.board.getPiece(startPos);
-        ChessPiece.PieceType pieceType = this.board.getPiece(startPos).getPieceType();
+
+        // check if the position is null
+        if (board.getPiece(startPos) == null) {
+            throw new InvalidMoveException("Invalid Move! You do not have a piece at that starting location.");
+        }
+        // check if this piece is actually ours
+        if (board.getPiece(startPos).getTeamColor() != this.getTeamTurn()) {
+            throw new InvalidMoveException("Invalid Move! The piece at that starting location is not yours.");
+        }
+
+
+
+
+
+
+        // see if move entered is a move that is possible
+        for (ChessMove move : )
 
         // make sure I am not in check
 
@@ -125,34 +138,28 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         // setup
-        Collection<ChessPosition> OpponentPositionsOccupied;
         Collection<ChessMove> OpponentMoves = new ArrayList<>();
         ChessPosition KingPosition;
 
-        // need to see if current team color is in check. thus, we loop through the opponents pieces
+        // need to see if current team color is in check, so declare what team are the opponents
         if (teamColor == TeamColor.BLACK) {
-            OpponentPositionsOccupied = WhitePositionsOccupied;
+            OpponentMoves = WhiteMoves;
             KingPosition = BlackKingPosition;
 
         }
         else {
-            OpponentPositionsOccupied = BlackPositionsOccupied;
+            OpponentMoves = BlackMoves;
             KingPosition = WhiteKingPosition;
         }
 
         // find out if the other team could move to your kings location
-        for (ChessPosition pos : OpponentPositionsOccupied) {
-            Collection<ChessMove> movesForThisPiece = board.getPiece(pos).pieceMoves(board, pos);
-            OpponentMoves.addAll(movesForThisPiece);
-        }
-
         for (ChessMove move : OpponentMoves) {
             ChessPosition endPos = move.getEndPosition();
             if (endPos == KingPosition) {
-                return true;
+                return true; // there is an opposing piece that can capture our king!
             }
-
         }
+        // this path means that no pieces can capture our king. we are NOT in check
         return false;
     }
 
