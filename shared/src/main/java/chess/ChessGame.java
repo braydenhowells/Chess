@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -11,12 +12,41 @@ import java.util.Collection;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor turn;
+    private ChessMove LastOpponentMove;
+    private Collection<ChessPosition> BlackPositionsOccupied;
+    private Collection<ChessPosition> WhitePositionsOccupied;
+    private Collection<ChessMove> BlackValidMoves;
+    private Collection<ChessMove> WhiteValidMoves;
+
 
     public ChessGame() {
+        // setup
         ChessBoard gameBoard = new ChessBoard();
         gameBoard.resetBoard();
         this.board = gameBoard;
         this.turn = TeamColor.WHITE;
+        this.WhitePositionsOccupied = new ArrayList<>();
+        this.BlackPositionsOccupied = new ArrayList<>();
+        this.BlackValidMoves = new ArrayList<>();
+        this.WhiteValidMoves = new ArrayList<>();
+
+        // add the starting positions into our positions lists
+        // royalty white
+        for (int i = 1; i < 9; i++) {
+            WhitePositionsOccupied.add(new ChessPosition(1, i));
+        }
+        // pawns white
+        for (int i = 1; i < 9; i++) {
+            WhitePositionsOccupied.add(new ChessPosition(2, i));
+        }
+        // royalty black
+        for (int i = 1; i < 9; i++) {
+            BlackPositionsOccupied.add(new ChessPosition(8, i));
+        }
+        // pawns black
+        for (int i = 1; i < 9; i++) {
+            BlackPositionsOccupied.add(new ChessPosition(7, i));
+        }
     }
 
     /**
