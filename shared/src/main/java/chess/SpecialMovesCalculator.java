@@ -3,7 +3,7 @@ package chess;
 import java.util.Collection;
 
 public class SpecialMovesCalculator {
-// not recursive, just returns the 1 style of move we give it for the pawn. static so we control with params
+    // not recursive, just returns a single move we give it for the pawn. static so we control with param units
     public static Collection<ChessMove> PawnMoves(ChessPiece piece,
                                                   ChessPosition originalPos,
                                                   ChessBoard board,
@@ -15,8 +15,11 @@ public class SpecialMovesCalculator {
         int originalRow = originalPos.getRow();
         int originalColumn = originalPos.getColumn();
         System.out.println("Current Position: " + originalPos);
+
+        // make a target position to see if we can go there
         int targetRow = originalRow + updownValue;
         int targetColumn = originalColumn + leftrightValue;
+        ChessPosition targetEndPosition = new ChessPosition(targetRow, targetColumn);
 
         // promotional check, if either piece would be moving to the very edge, add the promotion moves
         boolean promote = false;
@@ -26,9 +29,6 @@ public class SpecialMovesCalculator {
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE && targetRow == 8) {
             promote = true;
         }
-
-        // new possible position
-        ChessPosition targetEndPosition = new ChessPosition(targetRow, targetColumn);
 
         // check for an out-of-bounds move. if so, return moves
         if (targetColumn > 8 || targetRow > 8 || targetColumn < 1 || targetRow < 1) {

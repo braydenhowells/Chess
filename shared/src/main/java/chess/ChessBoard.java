@@ -27,7 +27,7 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
-    @Override
+     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("  a b c d e f g h\n"); // column labels

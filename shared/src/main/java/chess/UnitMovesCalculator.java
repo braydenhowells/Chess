@@ -3,7 +3,7 @@ package chess;
 import java.util.Collection;
 
 public class UnitMovesCalculator {
-    // recursive function for this class, static because we just control it with params
+    // recursive function for this class, static because we just control it with param units
     public static Collection<ChessMove> Moves(ChessPiece piece,
                                               ChessPosition originalPos,
                                               ChessPosition currentPos,
@@ -18,6 +18,7 @@ public class UnitMovesCalculator {
         // takes an original position and incrementally adds moves possible FROM that position TO new positions indicated
         // works for straight, diagonal, and L shaped moves via leftright </> and updown +/- values
 
+        // setup
         int currentRow = currentPos.getRow();
         int currentColumn = currentPos.getColumn();
         System.out.println("Current Position: " + currentPos);
@@ -38,7 +39,8 @@ public class UnitMovesCalculator {
         //base case: square we want to move to is occupied, by either team
         if (board.getPiece(targetEndPosition) != null) {
             if (!board.getPiece(targetEndPosition).getTeamColor().equals(piece.getTeamColor())) {
-                // this path means that another piece was detected, but we can capture it. we will add this move to our list and then return
+                // this path means that another piece was detected, but we can capture it
+                // we will add this capture move to our list and then return
                 ChessMove targetMove = new ChessMove(originalPos, targetEndPosition, null);
                 moves.add(targetMove);
             }
@@ -48,8 +50,8 @@ public class UnitMovesCalculator {
         }
 
         // passed base cases? make a new move from ORIGINAL position to TARGET position
-        ChessMove newMove = new ChessMove(originalPos, targetEndPosition, null);
-        moves.add(newMove);
+        ChessMove targetMove = new ChessMove(originalPos, targetEndPosition, null);
+        moves.add(targetMove);
 
         // pieces like the king and the knight do not want recursion, as they can only move 1 unit
         // the king has a unit of 1 move, the knight has a unit of 1 L-shaped move

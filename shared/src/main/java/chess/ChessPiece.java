@@ -1,5 +1,10 @@
 package chess;
 
+import chess.piece_move_calculators.KingMovesCalculator;
+import chess.piece_move_calculators.KnightMovesCalculator;
+import chess.piece_move_calculators.PawnMovesCalculator;
+import chess.piece_move_calculators.RookMovesCalculator;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -26,7 +31,7 @@ public class ChessPiece {
     }
 
     private final ChessGame.TeamColor pieceColor;
-    private PieceType type; // not final because panws can change
+    private PieceType type; // not final because pawns can change
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
