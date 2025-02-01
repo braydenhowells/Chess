@@ -17,6 +17,9 @@ public class ChessGame {
     private Collection<ChessPosition> WhitePositionsOccupied;
     private Collection<ChessMove> BlackValidMoves;
     private Collection<ChessMove> WhiteValidMoves;
+    private ChessPosition WhiteKingPosition;
+    private ChessPosition BlackKingPosition;
+
 
 
     public ChessGame() {
@@ -29,6 +32,9 @@ public class ChessGame {
         this.BlackPositionsOccupied = new ArrayList<>();
         this.BlackValidMoves = new ArrayList<>();
         this.WhiteValidMoves = new ArrayList<>();
+        this.WhiteKingPosition = new ChessPosition(1, 5);
+        this.BlackKingPosition = new ChessPosition(8, 5);
+
 
 
         // add the starting positions into our positions lists
@@ -54,9 +60,6 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        if (turn == null) {
-            return TeamColor.WHITE;
-        }
         return turn;
     }
 
@@ -109,6 +112,8 @@ public class ChessGame {
 
         // make sure I am not in check
 
+        // if king moved, update his position
+
         // set game turn to other team
     }
 
@@ -119,7 +124,36 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-       throw new RuntimeException("sorry");
+        // setup
+        Collection<ChessPosition> OpponentPositionsOccupied;
+        Collection<ChessMove> OpponentMoves = new ArrayList<>();
+        ChessPosition KingPosition;
+
+        // need to see if current team color is in check. thus, we loop through the opponents pieces
+        if (teamColor == TeamColor.BLACK) {
+            OpponentPositionsOccupied = WhitePositionsOccupied;
+            KingPosition = BlackKingPosition;
+
+        }
+        else {
+            OpponentPositionsOccupied = BlackPositionsOccupied;
+            KingPosition = WhiteKingPosition;
+        }
+
+        // find out if the other team could move to your kings location
+        for (ChessPosition pos : OpponentPositionsOccupied) {
+            Collection<ChessMove> movesForThisPiece = board.getPiece(pos).pieceMoves(board, pos);
+            OpponentMoves.addAll(movesForThisPiece);
+        }
+
+        for (ChessMove move : OpponentMoves) {
+            ChessPosition endPos = move.getEndPosition();
+            if (endPos == KingPosition) {
+                return true;
+            }
+
+        }
+        return false;
     }
 
     /**
