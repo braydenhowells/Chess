@@ -30,6 +30,7 @@ public class ChessGame {
         this.BlackValidMoves = new ArrayList<>();
         this.WhiteValidMoves = new ArrayList<>();
 
+
         // add the starting positions into our positions lists
         // royalty white
         for (int i = 1; i < 9; i++) {
