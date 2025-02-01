@@ -34,6 +34,8 @@ public class ChessGame {
 
 
         // get all the moves we can make for either team. this will be used to see if we are in check
+        // these are to be updated throughout the game to make looping through all pieces easier
+
         // royalty white
         for (int i = 1; i < 9; i++) {
             WhiteMoves.addAll(validMoves(new ChessPosition(1, i)));
