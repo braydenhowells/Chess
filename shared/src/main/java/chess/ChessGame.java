@@ -105,29 +105,96 @@ public class ChessGame {
         // setup
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
+        ChessPiece piece = board.getPiece(startPos);
+        Collection<ChessMove> availableMoves;
+
+        if (turn == TeamColor.BLACK) {
+            availableMoves = BlackMoves;
+        }
+        else {
+            availableMoves = WhiteMoves;
+        }
+
+        // check for an attempted out-of-bounds move
+        if (startPos.getRow() > 8 || startPos.getColumn() > 8 || startPos.getRow() < 1 || startPos.getColumn() < 1) {
+            throw new InvalidMoveException("Invalid Move! The start position you attempted is out of bounds!");
+        }
+        if (endPos.getRow() > 8 || endPos.getColumn() > 8 || endPos.getRow() < 1 || endPos.getColumn() < 1) {
+            throw new InvalidMoveException("Invalid Move! The end position you attempted is out of bounds!");
+        }
 
         // check if the position is null
         if (board.getPiece(startPos) == null) {
             throw new InvalidMoveException("Invalid Move! You do not have a piece at that starting location.");
         }
+
         // check if this piece is actually ours
         if (board.getPiece(startPos).getTeamColor() != this.getTeamTurn()) {
             throw new InvalidMoveException("Invalid Move! The piece at that starting location is not yours.");
         }
 
+        // check if the end + start position are in a move that we have as valid
+        if (isMoveIn(availableMoves, move)) {
+            // if this is true, we finally have reached spot where we COULD make a move
+            // make a previous board so we do not lose it in case the move is invalid
+            ChessBoard previousBoard = board;
+            // make the move
+            // "add" the same piece to the end position of potential board
+            board.addPiece(endPos, piece);
+            // "add" a null piece to the start position of the potential board
+            board.addPiece(startPos, null);
+            // see if that move just put our team in check
+            if (isInCheck(turn)) {
+                // reset board to previous state
+                board = previousBoard;
+                throw new InvalidMoveException("Invalid Move! The desired move will put your king in check.");
+            }
+            else {
+                // this path means we have a move that works
 
+                // if king moved, update his position
+                if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    if (turn == TeamColor.BLACK) {
+                        BlackKingPosition = endPos;
+                    }
+                    else {
+                        WhiteKingPosition = endPos;
+                    }
+                }
 
+                // now we need to update our moves lists
+                Collection<ChessMove> newMoves = new ArrayList<>();
+                for (ChessMove oldMove : availableMoves) {
+                    if (oldMove.getStartPosition() != startPos) {
+                        newMoves.add(oldMove);
+                    }
+                }
+                if (turn == TeamColor.BLACK) {
+                    BlackMoves = newMoves;
+                }
+                else {
+                    WhiteMoves = newMoves;
+                }
 
+                // set game turn to other team
+                setTeamTurn(turn);
 
+            }
+        }
 
-        // see if move entered is a move that is possible
-        for (ChessMove move : )
+        else {
+            // this path means that the inputted move was not in our available moves;
+            throw new InvalidMoveException("Invalid Move! You cannot move there.");
+        }
+    }
 
-        // make sure I am not in check
-
-        // if king moved, update his position
-
-        // set game turn to other team
+    public boolean isMoveIn(Collection<ChessMove> moveSet, ChessMove move) {
+        for (ChessMove availableMove : moveSet) {
+            if (move == availableMove) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
