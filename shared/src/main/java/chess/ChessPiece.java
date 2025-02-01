@@ -1,9 +1,6 @@
 package chess;
 
-import chess.piece_move_calculators.KingMovesCalculator;
-import chess.piece_move_calculators.KnightMovesCalculator;
-import chess.piece_move_calculators.PawnMovesCalculator;
-import chess.piece_move_calculators.RookMovesCalculator;
+import chess.piece_calculators.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
