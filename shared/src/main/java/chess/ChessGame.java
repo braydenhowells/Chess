@@ -18,21 +18,20 @@ public class ChessGame {
     private ChessPosition WhiteKingPosition;
     private ChessPosition BlackKingPosition;
 
-
     public ChessGame() {
         // setup
         this.board = new ChessBoard();
         this.turn = TeamColor.WHITE;
         this.BlackMoves = new ArrayList<>();
         this.WhiteMoves = new ArrayList<>();
-
+        // get a normal board setup. this can be changed with setBoard for testing
         board.resetBoard();
     }
 
 
-        public void getTeamMoves() {
-            // get all the moves we can make for either team. this will be used to see if we are in check
-            // these are to be updated throughout the game to make looping through all pieces easier
+    public void getTeamMoves() {
+            // get all the moves and positions for either team. this will be used to see if we are in check
+            // these are to be updated throughout the game to make looping through all pieces easier than this method
 
             // check the entire board and populate the move lists
             for (int i = 1; i < 9; i++) {
@@ -97,9 +96,40 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return board.getPiece(startPosition).pieceMoves(board, startPosition);
-        // no variables needed. just return it exactly
+        // setup
+        ChessPiece piece = board.getPiece(startPosition);
+        Collection<ChessMove> possibleMoves =  piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> filteredMoves = new ArrayList<>();
+        ChessGame.TeamColor pieceColor = piece.getTeamColor();
 
+        // loop through a moveset for a piece. test each move: would this put us in check??
+        for (ChessMove move : possibleMoves) {
+            // setup
+            ChessPosition endPos = move.getEndPosition();
+            ChessPosition startPos = move.getStartPosition();
+
+            // now try making the move by "adding" that piece at the end position
+            board.addPiece(endPos, piece);
+
+            // "add" a null piece to the start position of the potential board
+            board.addPiece(startPos, null);
+
+            // update all possible moves to see if enemies can take the king now
+            getTeamMoves();
+
+            // if we aren't in check now, then let's add our move to the list
+            if (!isInCheck(pieceColor)) {
+                filteredMoves.add(move);
+            }
+
+            // reset the board to make our next check
+            board.addPiece(startPos, piece);
+            board.addPiece(endPos, null);
+
+        }
+        // make sure we return this to normal before we leave the function
+        getTeamMoves();
+        return filteredMoves;
     }
 
     /**
@@ -122,86 +152,28 @@ public class ChessGame {
             availableMoves = WhiteMoves;
         }
 
-        // check for an attempted out-of-bounds move
-        if (startPos.getRow() > 8 || startPos.getColumn() > 8 || startPos.getRow() < 1 || startPos.getColumn() < 1) {
-            throw new InvalidMoveException("Invalid Move! The start position you attempted is out of bounds!");
+        // if we are not allowed to move here
+        if (!availableMoves.contains(move)) {
+            throw new InvalidMoveException("Invalid Move!");
         }
-        if (endPos.getRow() > 8 || endPos.getColumn() > 8 || endPos.getRow() < 1 || endPos.getColumn() < 1) {
-            throw new InvalidMoveException("Invalid Move! The end position you attempted is out of bounds!");
-        }
+        // this path means we have a move that works
 
-        // check if the position is null
-        if (board.getPiece(startPos) == null) {
-            throw new InvalidMoveException("Invalid Move! You do not have a piece at that starting location.");
-        }
-
-        // check if this piece is actually ours
-        if (board.getPiece(startPos).getTeamColor() != this.getTeamTurn()) {
-            throw new InvalidMoveException("Invalid Move! The piece at that starting location is not yours.");
-        }
-
-        // check if the end + start position are in a move that we have as valid
-        if (isMoveIn(availableMoves, move)) {
-            // if this is true, we finally have reached spot where we COULD make a move
-            // make a previous board so we do not lose it in case the move is invalid
-            ChessBoard previousBoard = board;
-            // make the move
-            // "add" the same piece to the end position of potential board
-            board.addPiece(endPos, piece);
-            // "add" a null piece to the start position of the potential board
-            board.addPiece(startPos, null);
-            // see if that move just put our team in check
-            if (isInCheck(turn)) {
-                // reset board to previous state
-                board = previousBoard;
-                throw new InvalidMoveException("Invalid Move! The desired move will put your king in check.");
+        // if king moved, update his position
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            if (turn == TeamColor.BLACK) {
+                BlackKingPosition = endPos;
             }
             else {
-                // this path means we have a move that works
-
-                // if king moved, update his position
-                if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-                    if (turn == TeamColor.BLACK) {
-                        BlackKingPosition = endPos;
-                    }
-                    else {
-                        WhiteKingPosition = endPos;
-                    }
-                }
-
-                // now we need to update our moves lists
-                Collection<ChessMove> newMoves = new ArrayList<>();
-                for (ChessMove oldMove : availableMoves) {
-                    if (oldMove.getStartPosition() != startPos) {
-                        newMoves.add(oldMove);
-                    }
-                }
-                if (turn == TeamColor.BLACK) {
-                    BlackMoves = newMoves;
-                }
-                else {
-                    WhiteMoves = newMoves;
-                }
-
-                // set game turn to other team
-                setTeamTurn(turn);
-
+                WhiteKingPosition = endPos;
             }
         }
 
-        else {
-            // this path means that the inputted move was not in our available moves;
-            throw new InvalidMoveException("Invalid Move! You cannot move there.");
-        }
-    }
+        // now we need to update our moves lists
+        // loop through current positions of both teams and update available moves
 
-    public boolean isMoveIn(Collection<ChessMove> moveSet, ChessMove move) {
-        for (ChessMove availableMove : moveSet) {
-            if (move == availableMove) {
-                return true;
-            }
-        }
-        return false;
+        // set game turn to other team
+        setTeamTurn(turn);
+
     }
 
     /**
@@ -230,7 +202,7 @@ public class ChessGame {
         // find out if the other team could move to your kings location
         for (ChessMove move : OpponentMoves) {
             ChessPosition endPos = move.getEndPosition();
-            if (endPos.getRow() == KingPosition.getRow() && endPos.getColumn() == KingPosition.getColumn()) {
+            if (endPos.equals(KingPosition)) {
                 return true; // there is an opposing piece that can capture our king!
             }
         }
