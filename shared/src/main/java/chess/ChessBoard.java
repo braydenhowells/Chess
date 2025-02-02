@@ -27,23 +27,39 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
-     @Override
+
+    private char getPieceLetter(ChessPiece piece) {
+        switch (piece.getPieceType()) {
+            case KING:   return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 'K' : 'k';
+            case QUEEN:  return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 'Q' : 'q';
+            case ROOK:   return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 'R' : 'r';
+            case BISHOP: return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 'B' : 'b';
+            case KNIGHT: return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 'N' : 'n';
+            case PAWN:   return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 'P' : 'p';
+            default:     return '?'; // just in case
+        }
+    }
+
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("  a b c d e f g h\n"); // column labels
+        sb.append("   a b c d e f g h\n"); // column labels
+
         for (int i = 0; i < squares.length; i++) {
             sb.append(8 - i).append(" "); // row labels
             for (int j = 0; j < squares[i].length; j++) {
+                sb.append("|");
                 if (squares[i][j] == null) {
                     sb.append(" ");
-                }
-                else {
-                    sb.append(squares[i][j].getPieceType()).append(" "); // add each piece or empty space
+                } else {
+                    sb.append(getPieceLetter(squares[i][j]));
                 }
             }
-            sb.append(8 - i).append("\n"); // end of row with row label
+            sb.append("| ").append(8 - i).append("\n"); // end row with row label
         }
-        sb.append("  a b c d e f g h"); // column labels again at the bottom
+
+        sb.append("   a b c d e f g h\n"); // column labels again
         return sb.toString();
     }
 
@@ -68,12 +84,16 @@ public class ChessBoard {
         return squares[8 - position.getRow()][position.getColumn() - 1];
     }
 
+
+    public void removePiece(ChessPosition position) {
+        squares[8 - position.getRow()][position.getColumn() - 1] = null;
+    }
+
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
-
-
     public void resetBoard() {
         squares = new ChessPiece[8][8]; // overwrites our old board, with empty pieces (then we fill em)
         // list for looping

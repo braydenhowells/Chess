@@ -30,34 +30,36 @@ public class ChessGame {
 
 
     public void getTeamMoves() {
-            // get all the moves and positions for either team. this will be used to see if we are in check
-            // these are to be updated throughout the game to make looping through all pieces easier than this method
+        BlackMoves.clear();
+        WhiteMoves.clear();
+        // get all the moves and positions for either team. this will be used to see if we are in check
+        // these are to be updated throughout the game to make looping through all pieces easier than this method
 
-            // check the entire board and populate the move lists
-            for (int i = 1; i < 9; i++) {
-                for (int j = 1; j < 9; j++) {
-                    ChessPosition boardPosition = new ChessPosition(i, j);
-                    ChessPiece boardPiece = board.getPiece(boardPosition);
-                    if (boardPiece != null && boardPiece.getPieceType() != null) {
-                        // this is a real piece. see what color it is and add to list
-                        if (boardPiece.getTeamColor() == TeamColor.BLACK) {
-                            // update the king position if applicable
-                            if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
-                                BlackKingPosition = boardPosition;
-                            }
-                            BlackMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
+        // check the entire board and populate the move lists
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition boardPosition = new ChessPosition(i, j);
+                ChessPiece boardPiece = board.getPiece(boardPosition);
+                if (boardPiece != null && boardPiece.getPieceType() != null) {
+                    // this is a real piece. see what color it is and add to list
+                    if (boardPiece.getTeamColor() == TeamColor.BLACK) {
+                        // update the king position if applicable
+                        if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
+                            BlackKingPosition = boardPosition;
                         }
-                        if (boardPiece.getTeamColor() == TeamColor.WHITE) {
-                            // update the king position if applicable
-                            if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
-                                WhiteKingPosition = boardPosition;
-                            }
-                            WhiteMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
+                        BlackMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
+                    }
+                    if (boardPiece.getTeamColor() == TeamColor.WHITE) {
+                        // update the king position if applicable
+                        if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
+                            WhiteKingPosition = boardPosition;
                         }
+                        WhiteMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
                     }
                 }
             }
         }
+    }
 
     /**
      * @return Which team's turn it is
@@ -105,15 +107,25 @@ public class ChessGame {
         // loop through a moveset for a piece. test each move: would this put us in check??
         for (ChessMove move : possibleMoves) {
             // setup
+            boolean isCapture = false;
             ChessPosition endPos = move.getEndPosition();
             ChessPosition startPos = move.getStartPosition();
+            ChessPiece capturePiece;
+            if (board.getPiece(endPos) != null && !board.getPiece(endPos).getTeamColor().equals(piece.getTeamColor())) {
+                isCapture = true;
+                capturePiece = new ChessPiece(board.getPiece(endPos).getTeamColor(), board.getPiece(endPos).getPieceType());
+            }
+            else {
+                capturePiece = null;
+            }
 
             // now try making the move by "adding" that piece at the end position
             board.addPiece(endPos, piece);
+            System.out.println(board.toString());
 
-            // "add" a null piece to the start position of the potential board
-            board.addPiece(startPos, null);
-
+            // set the start position of piece currently moving to empty
+            board.removePiece(startPos);
+            System.out.println(board.toString());
             // update all possible moves to see if enemies can take the king now
             getTeamMoves();
 
@@ -124,9 +136,13 @@ public class ChessGame {
 
             // reset the board to make our next check
             board.addPiece(startPos, piece);
-            board.addPiece(endPos, null);
-
+            board.removePiece(endPos);
+            if (isCapture) {
+                board.addPiece(endPos, capturePiece);
+            }
+            System.out.println(board.toString());
         }
+
         // make sure we return this to normal before we leave the function
         getTeamMoves();
         return filteredMoves;

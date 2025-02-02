@@ -26,8 +26,6 @@ public class UnitMovesCalculator {
         // setup
         int currentRow = currentPos.getRow();
         int currentColumn = currentPos.getColumn();
-        System.out.println("Current Position: " + currentPos);
-        System.out.println("updownValue: " + updownValue + ", leftrightValue: " + leftrightValue);
 
         // make a target position to see if we can go there. this move is based on what kind of directions we pass in (params)
         int targetRow = currentRow + updownValue;
@@ -36,8 +34,6 @@ public class UnitMovesCalculator {
 
         // base case: we are trying an out-of-bounds move, signals recursion stop
         if (targetColumn > 8 || targetRow > 8 || targetColumn < 1 || targetRow < 1) {
-            System.out.println("Out of bounds!");
-            System.out.println("Target Position: " + targetEndPosition);
             return moves;
         }
 
