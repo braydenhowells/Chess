@@ -3,12 +3,6 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * For a class that can manage a chess game, making moves on a board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
- */
 public class ChessGame {
     private ChessBoard board;
     private TeamColor turn;
@@ -74,20 +68,13 @@ public class ChessGame {
         }
     }
 
-
     public TeamColor getTeamTurn() {
-        return turn;
+        return this.turn;
     }
 
     public void setTeamTurn(TeamColor team) {
-        if (team == TeamColor.WHITE) {
-            turn = TeamColor.BLACK;
-        }
-        else {
-            turn = TeamColor.WHITE;
-        }
+        this.turn = team;
     }
-
 
     public enum TeamColor {
         WHITE,
@@ -119,11 +106,9 @@ public class ChessGame {
 
             // now try making the move by "adding" that piece at the end position
             board.addPiece(endPos, piece);
-            System.out.println(board.toString());
 
             // set the start position of piece currently moving to empty
             board.removePiece(startPos);
-            System.out.println(board.toString());
             // update all possible moves to see if enemies can take the king now
             getTeamMoves();
 
@@ -138,7 +123,6 @@ public class ChessGame {
             if (isCapture) {
                 board.addPiece(endPos, capturePiece);
             }
-            System.out.println(board.toString());
         }
 
         // make sure we return this to normal before we leave the function
@@ -151,16 +135,18 @@ public class ChessGame {
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPos);
-        Collection<ChessMove> availableMoves;
-        if (turn == TeamColor.BLACK) {
-            availableMoves = BlackMoves;
+        // verify that a piece exists here
+        if (piece == null) {
+            throw new InvalidMoveException("Invalid Move! There is no piece at that location.");
         }
-        else {
-            availableMoves = WhiteMoves;
+        // verify piece color matches turn
+        if (piece.getTeamColor() != turn) {
+            throw new InvalidMoveException("Invalid Move! That piece does not belong to your team.");
         }
+        Collection<ChessMove> validMoves = validMoves(startPos);
 
-        // if we are not allowed to move here
-        if (!availableMoves.contains(move)) {
+            // if we are not allowed to move here
+        if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Invalid Move!");
         }
 
@@ -189,7 +175,12 @@ public class ChessGame {
         LastOpponentMove = move;
 
         // set game turn to other team
-        setTeamTurn(turn);
+        if (turn == TeamColor.BLACK) {
+            setTeamTurn(TeamColor.WHITE);
+        }
+        else {
+            setTeamTurn(TeamColor.BLACK);
+        }
     }
 
     public boolean isInCheck(TeamColor teamColor) {
@@ -247,11 +238,9 @@ public class ChessGame {
                 capturePiece = null;
             }
 
-            System.out.println(board);
             // make move
             board.addPiece(endPos, piece);
             board.removePiece(startPos);
-            System.out.println(board);
 
             // update opponent moves before evaluating check
             getTeamMoves();
