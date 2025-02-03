@@ -16,7 +16,6 @@ public class SpecialMovesCalculator {
         // setup
         int originalRow = originalPos.getRow();
         int originalColumn = originalPos.getColumn();
-        System.out.println("Current Position: " + originalPos);
 
         // make a target position to see if we can go there
         int targetRow = originalRow + updownValue;
