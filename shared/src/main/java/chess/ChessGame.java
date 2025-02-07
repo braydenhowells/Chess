@@ -13,6 +13,7 @@ public class ChessGame {
     private Collection<ChessMove> WhiteMoves;
     private ChessPosition WhiteKingPosition;
     private ChessPosition BlackKingPosition;
+    private boolean enPassant = false;
 
     public ChessGame() {
         // setup
@@ -88,6 +89,26 @@ public class ChessGame {
         Collection<ChessMove> filteredMoves = new ArrayList<>();
         ChessGame.TeamColor pieceColor = piece.getTeamColor();
 
+        // en passant?
+        if (LastOpponentMove != null) {
+            if ((board.getPiece(LastOpponentMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN) && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                // this means that the last move was a pawn and the current piece we are looking at is a pawn
+                if (Math.abs(LastOpponentMove.getEndPosition().getRow() - LastOpponentMove.getStartPosition().getRow()) == 2) {
+                    // this means that the last pawn move was a 2 row move
+                    if (LastOpponentMove.getEndPosition().getRow() == startPosition.getRow()) {
+                        // this means that the pawn just moved to our row. we are golden
+                        if (pieceColor == TeamColor.BLACK) {
+                            possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() - 1, LastOpponentMove.getEndPosition().getColumn()), null));
+                        }
+                        possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() + 1, LastOpponentMove.getEndPosition().getColumn()), null));
+                        enPassant = true;
+                    }
+                }
+            }
+        }
+
+        // castle??
+
         // loop through a moveset for a piece. test each move: would this put us in check??
         for (ChessMove move : possibleMoves) {
             // setup
@@ -154,6 +175,10 @@ public class ChessGame {
         board.addPiece(endPos, piece); // overwrite our new position
         board.removePiece(startPos); // erase our old position
 
+        if (enPassant) {
+            board.removePiece(LastOpponentMove.getEndPosition());
+        }
+
         // if the pawn was being promoted, put that piece on the end position
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN && move.getPromotionPiece() != null) {
             board.addPiece(endPos, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
@@ -181,6 +206,9 @@ public class ChessGame {
         else {
             setTeamTurn(TeamColor.BLACK);
         }
+
+        enPassant = false;
+        // reset this for next time
     }
 
     public boolean isInCheck(TeamColor teamColor) {
