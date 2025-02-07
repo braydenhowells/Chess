@@ -15,6 +15,7 @@ public class ChessGame {
     private ChessPosition BlackKingPosition;
     private boolean enPassant = false;
 
+    // let us commence to obtaining this bread brethren
     public ChessGame() {
         // setup
         this.board = new ChessBoard();
