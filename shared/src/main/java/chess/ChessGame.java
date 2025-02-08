@@ -116,7 +116,7 @@ public class ChessGame {
             ChessPosition endPos = move.getEndPosition();
             ChessPosition startPos = move.getStartPosition();
             ChessPiece capturePiece;
-            // if we are capturing a piece during our theoretical move, we need to record what it was to put it back afterwards
+            // if we are capturing a piece during our theoretical move, we need to record what it was to put it back afterward
             if (board.getPiece(endPos) != null && !board.getPiece(endPos).getTeamColor().equals(piece.getTeamColor())) {
                 isCapture = true;
                 capturePiece = new ChessPiece(board.getPiece(endPos).getTeamColor(), board.getPiece(endPos).getPieceType());
@@ -175,7 +175,7 @@ public class ChessGame {
         board.addPiece(endPos, piece); // overwrite our new position
         board.removePiece(startPos); // erase our old position
 
-        if (enPassant) {
+        if (enPassant && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             board.removePiece(LastOpponentMove.getEndPosition());
         }
 
