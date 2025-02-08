@@ -13,7 +13,6 @@ public class ChessGame {
     private Collection<ChessMove> WhiteMoves;
     private ChessPosition WhiteKingPosition;
     private ChessPosition BlackKingPosition;
-    private boolean enPassant = false;
 
     // let us commence to obtaining this bread brethren
     public ChessGame() {
@@ -102,7 +101,6 @@ public class ChessGame {
                             possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() - 1, LastOpponentMove.getEndPosition().getColumn()), null));
                         }
                         possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() + 1, LastOpponentMove.getEndPosition().getColumn()), null));
-                        enPassant = true;
                     }
                 }
             }
@@ -117,7 +115,7 @@ public class ChessGame {
             ChessPosition endPos = move.getEndPosition();
             ChessPosition startPos = move.getStartPosition();
             ChessPiece capturePiece;
-            // if we are capturing a piece during our theoretical move, we need to record what it was to put it back afterwards
+            // if we are capturing a piece during our theoretical move, we need to record what it was to put it back afterward
             if (board.getPiece(endPos) != null && !board.getPiece(endPos).getTeamColor().equals(piece.getTeamColor())) {
                 isCapture = true;
                 capturePiece = new ChessPiece(board.getPiece(endPos).getTeamColor(), board.getPiece(endPos).getPieceType());
@@ -176,7 +174,8 @@ public class ChessGame {
         board.addPiece(endPos, piece); // overwrite our new position
         board.removePiece(startPos); // erase our old position
 
-        if (enPassant) {
+        if (LastOpponentMove != null && piece.getPieceType() == ChessPiece.PieceType.PAWN && LastOpponentMove.getEndPosition().getRow() == move.getStartPosition().getRow() && move.getEndPosition().getColumn() == LastOpponentMove.getEndPosition().getColumn()) {
+            // pawn just moved, pawn move currently being made, they are on the same row, and the current pawn is moving to the column of the opposing pawn
             board.removePiece(LastOpponentMove.getEndPosition());
         }
 
@@ -207,9 +206,6 @@ public class ChessGame {
         else {
             setTeamTurn(TeamColor.BLACK);
         }
-
-        enPassant = false;
-        // reset this for next time
     }
 
     public boolean isInCheck(TeamColor teamColor) {
