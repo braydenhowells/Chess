@@ -13,7 +13,6 @@ public class ChessGame {
     private Collection<ChessMove> WhiteMoves;
     private ChessPosition WhiteKingPosition;
     private ChessPosition BlackKingPosition;
-    private boolean enPassant = false;
 
     public ChessGame() {
         // setup
@@ -101,7 +100,6 @@ public class ChessGame {
                             possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() - 1, LastOpponentMove.getEndPosition().getColumn()), null));
                         }
                         possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() + 1, LastOpponentMove.getEndPosition().getColumn()), null));
-                        enPassant = true;
                     }
                 }
             }
@@ -175,7 +173,8 @@ public class ChessGame {
         board.addPiece(endPos, piece); // overwrite our new position
         board.removePiece(startPos); // erase our old position
 
-        if (enPassant && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+        if (LastOpponentMove != null && piece.getPieceType() == ChessPiece.PieceType.PAWN && LastOpponentMove.getEndPosition().getRow() == move.getStartPosition().getRow() && move.getEndPosition().getColumn() == LastOpponentMove.getEndPosition().getColumn()) {
+            // pawn just moved, pawn move currently being made, they are on the same row, and the current pawn is moving to the column of the opposing pawn
             board.removePiece(LastOpponentMove.getEndPosition());
         }
 
@@ -206,9 +205,6 @@ public class ChessGame {
         else {
             setTeamTurn(TeamColor.BLACK);
         }
-
-        enPassant = false;
-        // reset this for next time
     }
 
     public boolean isInCheck(TeamColor teamColor) {
