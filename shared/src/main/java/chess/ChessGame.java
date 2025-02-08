@@ -14,7 +14,7 @@ public class ChessGame {
     private ChessPosition WhiteKingPosition;
     private ChessPosition BlackKingPosition;
 
-    // let us commence to obtaining this bread brethren
+
     public ChessGame() {
         // setup
         this.board = new ChessBoard();
