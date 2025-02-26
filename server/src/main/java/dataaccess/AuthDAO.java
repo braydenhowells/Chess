@@ -4,4 +4,5 @@ import model.AuthData;
 
 public interface AuthDAO {
     public void createAuth(AuthData data);
+    public void clear();
 }

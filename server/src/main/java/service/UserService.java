@@ -7,13 +7,12 @@ import requests.RegisterRequest;
 import results.RegisterResult;
 
 public class UserService {
+
+    private final UserDAO userDao = new MemoryUserDao();
+    private final AuthDAO authDao = new MemoryAuthDao();
+
     public RegisterResult register(RegisterRequest registerRequest) {
-        UserDAO userDao = new MemoryUserDao();
         UserData userdata = userDao.getUser(registerRequest.username());
-
-        AuthDAO authDao = new MemoryAuthDao();
-
-
 
         if (!(userdata == null)) {
             return new RegisterResult("Error: username is already taken", null, null);
@@ -25,5 +24,9 @@ public class UserService {
         authDao.createAuth(authdata);
 
         return new RegisterResult(null, registerRequest.username(), authdata.authToken());
+    }
+
+    public void clear() {
+        userDao.clear();
     }
 }
