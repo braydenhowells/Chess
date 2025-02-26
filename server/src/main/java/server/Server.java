@@ -1,6 +1,9 @@
 package server;
 
+import handlers.RegisterHandler;
 import spark.*;
+
+// place to initilaize the dao hashmaps and pass that as data access to make sure we use the same in our classes going forward
 
 public class Server {
 
@@ -8,6 +11,9 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        // instructions for urls to methods
+        Spark.post("/user", (req, res) -> (new RegisterHandler()).handleRequest(req, res));
 
         // Register your endpoints and handle exceptions here.
 
