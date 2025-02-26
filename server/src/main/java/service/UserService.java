@@ -8,8 +8,13 @@ import results.RegisterResult;
 
 public class UserService {
 
-    private final UserDAO userDao = new MemoryUserDao();
-    private final AuthDAO authDao = new MemoryAuthDao();
+    private final UserDAO userDao;
+    private final AuthDAO authDao;
+
+    public UserService(UserDAO userDao, AuthDAO authDao) {
+        this.userDao = userDao;
+        this.authDao = authDao;
+    }
 
     public RegisterResult register(RegisterRequest registerRequest) {
         UserData userdata = userDao.getUser(registerRequest.username());
