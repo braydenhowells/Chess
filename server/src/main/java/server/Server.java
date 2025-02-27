@@ -2,6 +2,7 @@ package server;
 
 import dataaccess.*;
 import handlers.ClearHandler;
+import handlers.LoginHandler;
 import handlers.RegisterHandler;
 import spark.*;
 
@@ -20,8 +21,10 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // instructions for urls to methods
-        Spark.post("/user", (req, res) -> (new RegisterHandler(userDAO, authDAO)).handleRequest(req, res));
-        Spark.delete("/db", (req, res) -> (new ClearHandler(userDAO, gameDAO, authDAO)).clearRequest(req, res));
+        Spark.post("/user", (req, res) -> (new RegisterHandler(userDAO, authDAO)).register(req, res));
+        Spark.delete("/db", (req, res) -> (new ClearHandler(userDAO, gameDAO, authDAO)).clear(req, res));
+        Spark.post("/session", (req, res) -> (new LoginHandler(userDAO, authDAO)).login(req, res));
+
 
         // Register your endpoints and handle exceptions here.
 

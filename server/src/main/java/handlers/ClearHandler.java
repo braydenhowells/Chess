@@ -23,7 +23,7 @@ public class ClearHandler {
         this.authDAO = authDAO;
     }
 
-    public Object clearRequest(Request req, Response res) {
+    public Object clear(Request req, Response res) {
         // idk how a 500 error would even look for this one. not sure where to put it
 
         UserService userService = new UserService(userDAO, authDAO);
