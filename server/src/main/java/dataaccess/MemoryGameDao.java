@@ -1,6 +1,6 @@
 package dataaccess;
 
-import model.AuthData;
+
 import model.GameData;
 
 import java.util.HashMap;
@@ -12,5 +12,9 @@ public class MemoryGameDao implements GameDAO {
 
     public void clear() {
         allGames.clear();
+    }
+
+    public void create(GameData data) {
+        allGames.put(String.valueOf(data.gameID()), data);
     }
 }

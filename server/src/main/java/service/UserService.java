@@ -4,8 +4,10 @@ import java.util.UUID;
 import dataaccess.*; // * imports all from that package
 import model.*;
 import requests.LoginRequest;
+import requests.LogoutRequest;
 import requests.RegisterRequest;
 import results.LoginResult;
+import results.SimpleResult;
 
 public class UserService {
 
@@ -47,10 +49,22 @@ public class UserService {
         AuthData authdata = new AuthData(UUID.randomUUID().toString(), loginRequest.username());
         authDao.createAuth(authdata);
         return new LoginResult(null, loginRequest.username(), authdata.authToken());
-
     }
 
-    public void clear() {
+    public SimpleResult logout(LogoutRequest lreq) {
+        AuthData authData = authDao.findAuthData(lreq.authToken());
+        if (authData == null) {
+            return new SimpleResult("Error: unauthorized");
+        }
+        authDao.deleteAuthData(authData);
+        return new SimpleResult(null);
+    }
+
+    public void userClear() {
         userDao.clear();
+    }
+
+    public void authClear() {
+        authDao.clear();
     }
 }

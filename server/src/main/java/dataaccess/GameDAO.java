@@ -1,5 +1,8 @@
 package dataaccess;
 
+import model.GameData;
+
 public interface GameDAO {
-    public void clear();
+    void clear();
+    void create(GameData data);
 }
