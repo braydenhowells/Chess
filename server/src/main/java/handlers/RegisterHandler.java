@@ -1,22 +1,18 @@
 package handlers;
 
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
 import requests.RegisterRequest;
 import com.google.gson.Gson;
-import results.RegisterResult;
+import results.LoginResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
 
 public class RegisterHandler {
 
-    private final UserDAO userDAO;
-    private final AuthDAO authDAO;
+    private final UserService userService;
 
-    public RegisterHandler(UserDAO userDAO, AuthDAO authDAO) {
-        this.userDAO = userDAO;
-        this.authDAO = authDAO;
+    public RegisterHandler(UserService userService) {
+        this.userService = userService;
     }
 
     public Object register(Request req, Response res){
@@ -28,11 +24,10 @@ public class RegisterHandler {
                 rreq.password() == null || rreq.password().isEmpty()) {
 
             res.status(400);
-            return new Gson().toJson(new RegisterResult("Error: at least one field is empty. Please try again", null, null));
+            return new Gson().toJson(new LoginResult("Error: at least one field is empty. Please try again", null, null));
         }
 
-        UserService service = new UserService(userDAO, authDAO);
-        RegisterResult result = service.register(rreq);
+        LoginResult result = userService.register(rreq);
 
         // 200
         if (result.message() == null) {

@@ -12,25 +12,22 @@ import spark.Response;
 
 public class ClearHandler {
 
-    private final UserDAO userDAO;
-    private final GameDAO gameDAO;
-    private final AuthDAO authDAO;
+    private final UserService userService;
+    private final AuthService authService;
+    private final GameService gameService;
 
+    public ClearHandler(UserService userService, AuthService authService, GameService gameService) {
+        this.userService = userService;
+        this.authService = authService;
+        this.gameService = gameService;
 
-    public ClearHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
-        this.userDAO = userDAO;
-        this.gameDAO = gameDAO;
-        this.authDAO = authDAO;
     }
 
     public Object clear(Request req, Response res) {
         // idk how a 500 error would even look for this one. not sure where to put it
 
-        UserService userService = new UserService(userDAO, authDAO);
         userService.clear();
-        AuthService authService = new AuthService(authDAO);
         authService.clear();
-        GameService gameService = new GameService(gameDAO);
         gameService.clear();
 
         res.status(200);

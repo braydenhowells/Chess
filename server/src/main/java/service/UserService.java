@@ -6,7 +6,6 @@ import model.*;
 import requests.LoginRequest;
 import requests.RegisterRequest;
 import results.LoginResult;
-import results.RegisterResult;
 
 public class UserService {
 
@@ -18,11 +17,11 @@ public class UserService {
         this.authDao = authDao;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
+    public LoginResult register(RegisterRequest registerRequest) {
         UserData userdata = userDao.getUser(registerRequest.username());
 
         if (!(userdata == null)) {
-            return new RegisterResult("Error: username is already taken", null, null);
+            return new LoginResult("Error: username is already taken", null, null);
         }
 
         userDao.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
@@ -30,7 +29,7 @@ public class UserService {
         AuthData authdata = new AuthData(UUID.randomUUID().toString(), registerRequest.username());
         authDao.createAuth(authdata);
 
-        return new RegisterResult(null, registerRequest.username(), authdata.authToken());
+        return new LoginResult(null, registerRequest.username(), authdata.authToken());
     }
 
     public LoginResult login(LoginRequest loginRequest) {
