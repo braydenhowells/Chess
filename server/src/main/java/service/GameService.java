@@ -7,7 +7,7 @@ import results.CreateResult;
 
 public class GameService {
     private final GameDAO gameDao;
-    private int gameIDcounter = 0;
+    private int gameIDcounter = 1;
 
     public GameService(GameDAO gameDao) {
         this.gameDao = gameDao;
@@ -16,13 +16,13 @@ public class GameService {
 
     public void clear() {
         gameDao.clear();
+        gameIDcounter = 1;
     }
 
     public CreateResult create(String gameName) {
         GameData data = new GameData(this.gameIDcounter, null, null, gameName, new ChessGame());
         gameDao.create(data);
         this.gameIDcounter += 1;
-        // placeholder
-        return new CreateResult(null, null);
+        return new CreateResult(String.valueOf(data.gameID()), null);
     }
 }

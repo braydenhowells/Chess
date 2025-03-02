@@ -67,4 +67,8 @@ public class UserService {
     public void authClear() {
         authDao.clear();
     }
+
+    public AuthData getAuthData(String authToken) {
+        return authDao.findAuthData(authToken);
+    }
 }
