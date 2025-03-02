@@ -4,6 +4,9 @@ import chess.ChessGame;
 import dataaccess.GameDAO;
 import model.GameData;
 import results.CreateResult;
+import results.ListResult;
+
+import java.util.List;
 
 public class GameService {
     private final GameDAO gameDao;
@@ -11,7 +14,6 @@ public class GameService {
 
     public GameService(GameDAO gameDao) {
         this.gameDao = gameDao;
-
     }
 
     public void clear() {
@@ -24,5 +26,9 @@ public class GameService {
         gameDao.create(data);
         this.gameIDcounter += 1;
         return new CreateResult(String.valueOf(data.gameID()), null);
+    }
+
+    public ListResult getGames() {
+        return new ListResult(null, gameDao.findAll());
     }
 }
