@@ -15,6 +15,9 @@ import model.AuthData;
 
 import java.util.Arrays;
 import java.util.List;
+// using Arrays.asList here allows null values to enter the list when we use the verifyAuth function
+// this is crucial because any null values in our body parts need to be accounted for
+// also, if we use a regular list instead, java will flip out if anything inside is null
 
 public class MasterHandler {
 

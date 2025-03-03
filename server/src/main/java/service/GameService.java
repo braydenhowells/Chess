@@ -6,8 +6,6 @@ import model.GameData;
 import results.CreateResult;
 import results.ListResult;
 
-import java.util.List;
-
 public class GameService {
     private final GameDAO gameDao;
     private int gameIDcounter = 1;
