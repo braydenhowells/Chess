@@ -28,7 +28,8 @@ public class Server {
         this.userService = new UserService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO);
 
-        // i am choosing to have only 1 handler
+        // I am choosing to have only 1 handler
+        // I feel like the handlers do very similar things and I didn't want duplicate code
         this.handler = new MasterHandler(userService, gameService);
     }
 
