@@ -146,7 +146,6 @@ public class MasterHandler {
         // 200
         if (result.message() == null) {
             res.status(200);
-            System.out.println("200");
         }
 
         // 401 and 500
