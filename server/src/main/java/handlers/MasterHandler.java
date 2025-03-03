@@ -1,10 +1,8 @@
 package handlers;
 
 import com.google.gson.Gson;
-import requests.CreateRequest;
-import requests.LoginRequest;
-import requests.LogoutRequest;
-import requests.RegisterRequest;
+import model.GameData;
+import requests.*;
 import results.CreateResult;
 import results.ListResult;
 import results.LoginResult;
@@ -15,6 +13,7 @@ import spark.Request;
 import spark.Response;
 import model.AuthData;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class MasterHandler {
@@ -65,7 +64,7 @@ public class MasterHandler {
         CreateRequest creq = new Gson().fromJson(req.body(), CreateRequest.class);
         // verify auth token
         String authToken = req.headers("authorization");
-        String verification = verifyAuth(authToken, res, true, List.of(creq.gameName()));
+        String verification = verifyAuth(authToken, res, true, Arrays.asList(creq.gameName()));
         // error cases: 400, 401
         if (verification.contains("Error")) {
             return new Gson().toJson(new SimpleResult(verification));
@@ -188,6 +187,68 @@ public class MasterHandler {
         return new Gson().toJson(result);
     }
 
+    public Object join(Request req, Response res) {
+        JoinRequest jreq = new Gson().fromJson(req.body(), JoinRequest.class);
 
+        // verify auth token
+        String authToken = req.headers("authorization");
+        String verification = verifyAuth(authToken, res, true, Arrays.asList(jreq.gameID(), jreq.playerColor()));
+
+        // error cases: 400, 401
+        if (verification.contains("Error")) {
+            return new Gson().toJson(new SimpleResult(verification));
+        }
+
+        // now we know that the auth is legit and the body parts aren't null
+        else if (verification.contains("verified")) {
+            // first, make sure that the game exists by gameID
+            GameData data = gameService.findGame(jreq.gameID());
+
+            // case where supplied ID does not find a game, 401
+            if (data == null) {
+                // 401 error
+                res.status(401);
+                return new Gson().toJson(new SimpleResult("Error: unauthorized"));
+            }
+
+            // case where game color is not black / white, 400
+            if (!jreq.playerColor().equals("BLACK") && (!jreq.playerColor().equals("WHITE"))) {
+                // 400 error
+                res.status(400);
+                return new Gson().toJson(new SimpleResult("Error: bad request"));
+            }
+
+            // case where the desired color is already taken, 403
+            if (jreq.playerColor().equals("BLACK")) {
+                if (data.blackUsername() != null) {
+                    // 403 error
+                    res.status(403);
+                    return new Gson().toJson(new SimpleResult("Error: already taken"));
+                }
+            }
+
+            if (jreq.playerColor().equals("WHITE")) {
+                if (data.whiteUsername() != null) {
+                    // 403 error
+                    res.status(403);
+                    return new Gson().toJson(new SimpleResult("Error: already taken"));
+                }
+            }
+
+            // success case
+            // get the username for the current player
+            AuthData authData = userService.getAuthData(authToken);
+            String username = authData.username();
+            GameData gameData = gameService.findGame(jreq.gameID());
+            gameService.updateGameUser(username, gameData, jreq.playerColor());
+            res.status(200);
+            // return the result as a JSON
+            return new Gson().toJson(new SimpleResult(null));
+        }
+        else {
+            res.status(500);
+            return new Gson().toJson(new SimpleResult("Error: an unexpected error occurred"));
+        }
+    }
 
 }

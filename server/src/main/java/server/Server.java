@@ -44,6 +44,7 @@ public class Server {
         Spark.delete("/session", (req, res) -> handler.logout(req.headers("authorization"), res));
         Spark.post("/game", (req, res) -> handler.create(req, res));
         Spark.get("/game", (req, res) -> handler.list(req.headers("authorization"), res));
+        Spark.put("/game", (req, res) -> handler.join(req, res));
 
         // Register your endpoints and handle exceptions here.
 

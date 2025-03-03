@@ -11,7 +11,6 @@ public class MemoryGameDao implements GameDAO {
 
     private final static HashMap<String, GameData> allGames = new HashMap<>();
 
-
     public void clear() {
         allGames.clear();
     }
@@ -22,5 +21,13 @@ public class MemoryGameDao implements GameDAO {
 
     public List<GameData> findAll() {
         return new ArrayList<>(allGames.values());
+    }
+
+    public GameData find(String gameID) {
+        return allGames.get(gameID); // return null if not found
+    }
+
+    public void remove(String gameID) {
+        allGames.remove(gameID);
     }
 }
