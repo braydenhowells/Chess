@@ -25,7 +25,7 @@ class UserServiceTest {
         userDAO.clear();
     }
 
-    // assert throws
+    // success tests
 
     @Test
     void register() {
@@ -81,5 +81,60 @@ class UserServiceTest {
         assertEquals(data, result);
     }
 
+    // failure tests
+
+    @Test
+    void registerFail() {
+        RegisterRequest request = new RegisterRequest("user", "pass", "email");
+        LoginResult result = service.register(request);
+        assertEquals(result.username(), request.username());
+    }
+
+    @Test
+    void loginFail() {
+        service.register(new RegisterRequest("user", "pass", "email"));
+        LoginRequest request = new LoginRequest("user", "pass");
+        LoginResult result = service.login(request);
+        assertEquals(result.username(), request.username());
+    }
+
+    @Test
+    void logoutFail() {
+        authDAO.createAuth(new AuthData("token", "user"));
+        userDAO.createUser(new UserData("user", "pass", "email"));
+
+        SimpleResult result = service.logout(new LogoutRequest("token"));
+        assertNull(result.message());
+
+    }
+
+    @Test
+    void userClearFail() throws DataAccessException {
+        service.register(new RegisterRequest("user", "pass", "email"));
+        service.register(new RegisterRequest("user1", "pass1", "email1"));
+
+        service.userClear();
+        assertEquals(0, userDAO.getAllUsers().size());
+    }
+
+    @Test
+    void authClearFail() throws DataAccessException {
+        AuthData data = new AuthData("epicToken", "epicUser");
+        AuthData data1 = new AuthData("epicToken1", "epicUser1");
+        authDAO.createAuth(data);
+        authDAO.createAuth(data1);
+
+        service.authClear();
+        assertEquals(0, authDAO.getAllAuth().size());
+    }
+
+    @Test
+    void getAuthDataFail() throws DataAccessException {
+        AuthData data = new AuthData("epicToken", "epicUser");
+        authDAO.createAuth(data);
+        AuthData result = service.getAuthData("epicToken");
+
+        assertEquals(data, result);
+    }
 
 }

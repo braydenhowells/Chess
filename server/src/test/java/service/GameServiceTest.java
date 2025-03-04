@@ -28,4 +28,24 @@ class GameServiceTest {
     @Test
     void updateGameUser() {
     }
+
+    @Test
+    void clearFail() {
+    }
+
+    @Test
+    void createFail() {
+    }
+
+    @Test
+    void getGamesFail() {
+    }
+
+    @Test
+    void findGameFail() {
+    }
+
+    @Test
+    void updateGameUserFail() {
+    }
 }
