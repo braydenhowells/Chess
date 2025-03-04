@@ -11,8 +11,7 @@ import requests.RegisterRequest;
 import results.LoginResult;
 import results.SimpleResult;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
     static UserDAO userDAO = new MemoryUserDao();
@@ -85,56 +84,35 @@ class UserServiceTest {
 
     @Test
     void registerFail() {
+        userDAO.createUser(new UserData("user", "pass", "email"));
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         LoginResult result = service.register(request);
-        assertEquals(result.username(), request.username());
+        assertTrue(result.message().contains("Error"));
     }
 
     @Test
     void loginFail() {
-        service.register(new RegisterRequest("user", "pass", "email"));
-        LoginRequest request = new LoginRequest("user", "pass");
-        LoginResult result = service.login(request);
-        assertEquals(result.username(), request.username());
+        service.register(new RegisterRequest("user1", "pass", "email"));
+        LoginRequest request = new LoginRequest("user1", "pass_wacky");
+        LoginResult result1 = service.login(request);
+        assertTrue(result1.message().contains("Error"));
     }
 
     @Test
     void logoutFail() {
         authDAO.createAuth(new AuthData("token", "user"));
-        userDAO.createUser(new UserData("user", "pass", "email"));
+        SimpleResult resulty = service.logout(new LogoutRequest("kanye west graduation instrumentals are playing rn"));
 
-        SimpleResult result = service.logout(new LogoutRequest("token"));
-        assertNull(result.message());
-
-    }
-
-    @Test
-    void userClearFail() throws DataAccessException {
-        service.register(new RegisterRequest("user", "pass", "email"));
-        service.register(new RegisterRequest("user1", "pass1", "email1"));
-
-        service.userClear();
-        assertEquals(0, userDAO.getAllUsers().size());
-    }
-
-    @Test
-    void authClearFail() throws DataAccessException {
-        AuthData data = new AuthData("epicToken", "epicUser");
-        AuthData data1 = new AuthData("epicToken1", "epicUser1");
-        authDAO.createAuth(data);
-        authDAO.createAuth(data1);
-
-        service.authClear();
-        assertEquals(0, authDAO.getAllAuth().size());
+        assertTrue(resulty.message().contains("Error"));
     }
 
     @Test
     void getAuthDataFail() throws DataAccessException {
         AuthData data = new AuthData("epicToken", "epicUser");
         authDAO.createAuth(data);
-        AuthData result = service.getAuthData("epicToken");
+        AuthData result = service.getAuthData("sad");
 
-        assertEquals(data, result);
+        assertNull(result);
     }
 
 }
