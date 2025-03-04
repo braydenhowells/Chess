@@ -47,11 +47,6 @@ public class Server {
         Spark.get("/game", (req, res) -> handler.list(req.headers("authorization"), res));
         Spark.put("/game", (req, res) -> handler.join(req, res));
 
-        // Register your endpoints and handle exceptions here.
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
-
         Spark.awaitInitialization();
         return Spark.port();
     }
