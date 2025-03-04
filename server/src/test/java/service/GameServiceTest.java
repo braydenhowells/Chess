@@ -6,12 +6,10 @@ import handlers.MasterHandler;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import results.CreateResult;
 import results.ListResult;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameServiceTest {
     static UserDAO userDAO = new MemoryUserDao();
