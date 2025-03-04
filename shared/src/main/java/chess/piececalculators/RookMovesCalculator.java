@@ -1,7 +1,7 @@
-package chess.piece_calculators;
+package chess.piececalculators;
 
 import chess.*;
-import chess.move_calculators.UnitMovesCalculator;
+import chess.movecalculators.UnitMovesCalculator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,13 +17,13 @@ public class RookMovesCalculator {
     public Collection<ChessMove> getMoves(ChessPiece piece, ChessBoard board, ChessPosition position) {
         moves = new ArrayList<>();
         // up
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, 1, 0);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, 1, 0);
         // left
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, 0, -1);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, 0, -1);
         // right
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, 0, 1);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, 0, 1);
         // down
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, -1, 0);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, -1, 0);
         return moves;
     }
 }

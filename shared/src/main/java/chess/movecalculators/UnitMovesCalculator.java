@@ -1,4 +1,4 @@
-package chess.move_calculators;
+package chess.movecalculators;
 
 import chess.ChessBoard;
 import chess.ChessMove;
@@ -9,7 +9,7 @@ import java.util.Collection;
 
 public class UnitMovesCalculator {
     // recursive function for this class, static because we just control it with param units
-    public static Collection<ChessMove> Moves(ChessPiece piece,
+    public static Collection<ChessMove> moves(ChessPiece piece,
                                               ChessPosition originalPos,
                                               ChessPosition currentPos,
                                               ChessBoard board,
@@ -63,7 +63,7 @@ public class UnitMovesCalculator {
 
         // recurse for pieces like rook, bishop, and queen
         // these pieces have no movement limit and can move until blocked or on the edge of the board
-        Moves(piece, originalPos, targetEndPosition, board, moves, false, updownValue, leftrightValue);
+        moves(piece, originalPos, targetEndPosition, board, moves, false, updownValue, leftrightValue);
         return moves;
     }
 }

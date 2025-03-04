@@ -9,25 +9,25 @@ import java.util.List;
 
 public class MemoryGameDao implements GameDAO {
 
-    private final static HashMap<String, GameData> allGames = new HashMap<>();
+    private final static HashMap<String, GameData> ALL_GAMES = new HashMap<>();
 
     public void clear() {
-        allGames.clear();
+        ALL_GAMES.clear();
     }
 
     public void create(GameData data) {
-        allGames.put(String.valueOf(data.gameID()), data);
+        ALL_GAMES.put(String.valueOf(data.gameID()), data);
     }
 
     public List<GameData> findAll() {
-        return new ArrayList<>(allGames.values());
+        return new ArrayList<>(ALL_GAMES.values());
     }
 
     public GameData find(String gameID) {
-        return allGames.get(gameID); // return null if not found
+        return ALL_GAMES.get(gameID); // return null if not found
     }
 
     public void remove(String gameID) {
-        allGames.remove(gameID);
+        ALL_GAMES.remove(gameID);
     }
 }

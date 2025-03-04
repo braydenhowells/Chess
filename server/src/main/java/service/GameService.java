@@ -46,6 +46,4 @@ public class GameService {
             gameDao.create(new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game()));
         }
     }
-
-
 }

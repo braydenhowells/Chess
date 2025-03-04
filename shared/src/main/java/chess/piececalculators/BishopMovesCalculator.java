@@ -1,7 +1,7 @@
-package chess.piece_calculators;
+package chess.piececalculators;
 
 import chess.*;
-import chess.move_calculators.UnitMovesCalculator;
+import chess.movecalculators.UnitMovesCalculator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,13 +18,13 @@ public class BishopMovesCalculator {
         moves = new ArrayList<>();
 
         // top right
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, 1, 1);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, 1, 1);
         // top left
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, 1, -1);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, 1, -1);
         // bottom right
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, -1, 1);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, -1, 1);
         // bottom left
-        moves = UnitMovesCalculator.Moves(piece, position, position, board, moves, false, -1, -1);
+        moves = UnitMovesCalculator.moves(piece, position, position, board, moves, false, -1, -1);
         return moves;
     }
 }

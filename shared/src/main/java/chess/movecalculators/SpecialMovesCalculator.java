@@ -1,4 +1,4 @@
-package chess.move_calculators;
+package chess.movecalculators;
 
 import chess.*;
 
@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public class SpecialMovesCalculator {
     // not recursive, just returns a single move we give it for the pawn. static so we control with param units
-    public static Collection<ChessMove> PawnMoves(ChessPiece piece,
+    public static Collection<ChessMove> pawnMoves(ChessPiece piece,
                                                   ChessPosition originalPos,
                                                   ChessBoard board,
                                                   Collection<ChessMove> moves,

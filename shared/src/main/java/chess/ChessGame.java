@@ -6,33 +6,33 @@ import java.util.Collection;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor turn;
-    private ChessMove LastOpponentMove;
-    private Collection<ChessPosition> WhitePositions;
-    private Collection<ChessPosition> BlackPositions;
-    private Collection<ChessMove> BlackMoves;
-    private Collection<ChessMove> WhiteMoves;
-    private ChessPosition WhiteKingPosition;
-    private ChessPosition BlackKingPosition;
+    private ChessMove lastOpponentMove;
+    private Collection<ChessPosition> whitePositions;
+    private Collection<ChessPosition> blackPositions;
+    private Collection<ChessMove> blackMoves;
+    private Collection<ChessMove> whiteMoves;
+    private ChessPosition whiteKingPosition;
+    private ChessPosition blackKingPosition;
 
 
     public ChessGame() {
         // setup
         this.board = new ChessBoard();
         this.turn = TeamColor.WHITE;
-        this.BlackPositions = new ArrayList<>();
-        this.WhitePositions = new ArrayList<>();
-        this.BlackMoves = new ArrayList<>();
-        this.WhiteMoves = new ArrayList<>();
+        this.blackPositions = new ArrayList<>();
+        this.whitePositions = new ArrayList<>();
+        this.blackMoves = new ArrayList<>();
+        this.whiteMoves = new ArrayList<>();
         // get a normal board setup. this can be changed with setBoard for testing
         board.resetBoard();
     }
 
 
     public void getTeamMoves() {
-        BlackMoves.clear();
-        WhiteMoves.clear();
-        BlackPositions.clear();
-        WhitePositions.clear();
+        blackMoves.clear();
+        whiteMoves.clear();
+        blackPositions.clear();
+        whitePositions.clear();
 
         // get all the moves and positions for either team. this will be used to see if we are in check
         // these are to be updated throughout the game to make looping through all pieces easier than this method
@@ -47,22 +47,22 @@ public class ChessGame {
                     if (boardPiece.getTeamColor() == TeamColor.BLACK) {
                         // update the king position if applicable
                         if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
-                            BlackKingPosition = boardPosition;
+                            blackKingPosition = boardPosition;
                         }
                         // update all the moves for this piece
-                        BlackMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
+                        blackMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
                         // add this position to our board
-                        BlackPositions.add(boardPosition);
+                        blackPositions.add(boardPosition);
                     }
                     if (boardPiece.getTeamColor() == TeamColor.WHITE) {
                         // update the king position if applicable
                         if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
-                            WhiteKingPosition = boardPosition;
+                            whiteKingPosition = boardPosition;
                         }
                         // update all the moves for this piece
-                        WhiteMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
+                        whiteMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
                         // add this position to our board
-                        WhitePositions.add(boardPosition);
+                        whitePositions.add(boardPosition);
                     }
                 }
             }
@@ -90,17 +90,17 @@ public class ChessGame {
         ChessGame.TeamColor pieceColor = piece.getTeamColor();
 
         // en passant?
-        if (LastOpponentMove != null) {
-            if ((board.getPiece(LastOpponentMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN) && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+        if (lastOpponentMove != null) {
+            if ((board.getPiece(lastOpponentMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN) && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
                 // this means that the last move was a pawn and the current piece we are looking at is a pawn
-                if (Math.abs(LastOpponentMove.getEndPosition().getRow() - LastOpponentMove.getStartPosition().getRow()) == 2) {
+                if (Math.abs(lastOpponentMove.getEndPosition().getRow() - lastOpponentMove.getStartPosition().getRow()) == 2) {
                     // this means that the last pawn move was a 2 row move
-                    if (LastOpponentMove.getEndPosition().getRow() == startPosition.getRow()) {
+                    if (lastOpponentMove.getEndPosition().getRow() == startPosition.getRow()) {
                         // this means that the pawn just moved to our row. we are golden
                         if (pieceColor == TeamColor.BLACK) {
-                            possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() - 1, LastOpponentMove.getEndPosition().getColumn()), null));
+                            possibleMoves.add(new ChessMove(startPosition, new ChessPosition(lastOpponentMove.getEndPosition().getRow() - 1, lastOpponentMove.getEndPosition().getColumn()), null));
                         }
-                        possibleMoves.add(new ChessMove(startPosition, new ChessPosition(LastOpponentMove.getEndPosition().getRow() + 1, LastOpponentMove.getEndPosition().getColumn()), null));
+                        possibleMoves.add(new ChessMove(startPosition, new ChessPosition(lastOpponentMove.getEndPosition().getRow() + 1, lastOpponentMove.getEndPosition().getColumn()), null));
                     }
                 }
             }
@@ -174,9 +174,9 @@ public class ChessGame {
         board.addPiece(endPos, piece); // overwrite our new position
         board.removePiece(startPos); // erase our old position
 
-        if (LastOpponentMove != null && piece.getPieceType() == ChessPiece.PieceType.PAWN && LastOpponentMove.getEndPosition().getRow() == move.getStartPosition().getRow() && move.getEndPosition().getColumn() == LastOpponentMove.getEndPosition().getColumn()) {
+        if (lastOpponentMove != null && piece.getPieceType() == ChessPiece.PieceType.PAWN && lastOpponentMove.getEndPosition().getRow() == move.getStartPosition().getRow() && move.getEndPosition().getColumn() == lastOpponentMove.getEndPosition().getColumn()) {
             // pawn just moved, pawn move currently being made, they are on the same row, and the current pawn is moving to the column of the opposing pawn
-            board.removePiece(LastOpponentMove.getEndPosition());
+            board.removePiece(lastOpponentMove.getEndPosition());
         }
 
         // if the pawn was being promoted, put that piece on the end position
@@ -187,17 +187,17 @@ public class ChessGame {
         // if king moved, update his position
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             if (turn == TeamColor.BLACK) {
-                BlackKingPosition = endPos;
+                blackKingPosition = endPos;
             }
             else {
-                WhiteKingPosition = endPos;
+                whiteKingPosition = endPos;
             }
         }
 
         // now we need to update our position lists
         getTeamMoves();
 
-        LastOpponentMove = move;
+        lastOpponentMove = move;
 
         // set game turn to other team
         if (turn == TeamColor.BLACK) {
@@ -210,24 +210,24 @@ public class ChessGame {
 
     public boolean isInCheck(TeamColor teamColor) {
         // setup
-        Collection<ChessMove> OpponentMoves;
-        ChessPosition KingPosition;
+        Collection<ChessMove> opponentMoves;
+        ChessPosition kingPosition;
 
         // need to see if current team color is in check, so declare what team are the opponents
         if (teamColor == TeamColor.BLACK) {
-            OpponentMoves = WhiteMoves;
-            KingPosition = BlackKingPosition;
+            opponentMoves = whiteMoves;
+            kingPosition = blackKingPosition;
 
         }
         else {
-            OpponentMoves = BlackMoves;
-            KingPosition = WhiteKingPosition;
+            opponentMoves = blackMoves;
+            kingPosition = whiteKingPosition;
         }
 
         // find out if the other team could move to your kings location
-        for (ChessMove move : OpponentMoves) {
+        for (ChessMove move : opponentMoves) {
             ChessPosition endPos = move.getEndPosition();
-            if (endPos.equals(KingPosition)) {
+            if (endPos.equals(kingPosition)) {
                 return true; // there is an opposing piece that can capture our king!
             }
         }
@@ -236,17 +236,17 @@ public class ChessGame {
     }
 
     public boolean isInCheckmate(TeamColor teamColor) {
-        Collection<ChessMove> TeamMoves;
+        Collection<ChessMove> teamMoves;
         ChessGame.TeamColor oppositeColor;
         if (teamColor == TeamColor.WHITE) {
-            TeamMoves = new ArrayList<>(WhiteMoves); // make a copy instead
+            teamMoves = new ArrayList<>(whiteMoves); // make a copy instead
 
         }
         else {
-            TeamMoves = new ArrayList<>(BlackMoves); // make a copy instead
+            teamMoves = new ArrayList<>(blackMoves); // make a copy instead
         }
         // loop to evaluate each move. if we are not in check after making a move, then return false
-        for (ChessMove move : TeamMoves) {
+        for (ChessMove move : teamMoves) {
             // setup
             ChessPosition endPos = move.getEndPosition();
             ChessPosition startPos = move.getStartPosition();
@@ -293,10 +293,10 @@ public class ChessGame {
         getTeamMoves();
         Collection<ChessPosition> positions;
         if (teamColor == TeamColor.BLACK) {
-            positions = BlackPositions;
+            positions = blackPositions;
         }
         else {
-            positions = WhitePositions;
+            positions = whitePositions;
         }
 
         // condition 1: you are not in check
