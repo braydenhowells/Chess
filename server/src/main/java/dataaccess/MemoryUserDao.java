@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.UserData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MemoryUserDao implements UserDAO {
@@ -19,5 +20,9 @@ public class MemoryUserDao implements UserDAO {
 
     public void clear() {
         ALL_USERS.clear();
+    }
+
+    public ArrayList<UserData> getAllUsers() {
+        return new ArrayList<>(ALL_USERS.values());
     }
 }
