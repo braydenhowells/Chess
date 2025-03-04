@@ -43,10 +43,10 @@ public class ChessGame {
                 ChessPosition boardPosition = new ChessPosition(i, j);
                 ChessPiece boardPiece = board.getPiece(boardPosition);
 
-
-
                 // if the piece is not there or is somehow null, we skip this iteration of the for loop
-                if (boardPiece == null || boardPiece.getPieceType() == null) continue;
+                if (boardPiece == null || boardPiece.getPieceType() == null) {
+                    continue;
+                }
 
                 // this is a real piece. see what color it is and add to list
                 if (boardPiece.getTeamColor() == TeamColor.BLACK) {
@@ -87,17 +87,17 @@ public class ChessGame {
         BLACK
     }
 
-    public void checkEnPassant(ChessMove lastOpponentMove, Collection<ChessMove> possibleMoves, ChessGame.TeamColor pieceColor, ChessPosition startPosition) {
-        if (Math.abs(lastOpponentMove.getEndPosition().getRow() - lastOpponentMove.getStartPosition().getRow()) == 2) {
+    public void checkEnPassant(ChessMove lastOpMove, Collection<ChessMove> possibleMoves, ChessGame.TeamColor pColor, ChessPosition startPos) {
+        if (Math.abs(lastOpMove.getEndPosition().getRow() - lastOpMove.getStartPosition().getRow()) == 2) {
             // this means that the last pawn move was a 2 row move
-            if (lastOpponentMove.getEndPosition().getRow() == startPosition.getRow()) {
+            if (lastOpMove.getEndPosition().getRow() == startPos.getRow()) {
                 // this means that the pawn just moved to our row. we are golden
-                if (pieceColor == TeamColor.BLACK) {
-                    ChessPosition blackPos = new ChessPosition(lastOpponentMove.getEndPosition().getRow() - 1, lastOpponentMove.getEndPosition().getColumn());
-                    possibleMoves.add(new ChessMove(startPosition, blackPos, null));
+                if (pColor == TeamColor.BLACK) {
+                    ChessPosition bPos = new ChessPosition(lastOpMove.getEndPosition().getRow() - 1, lastOpMove.getEndPosition().getColumn());
+                    possibleMoves.add(new ChessMove(startPos, bPos, null));
                 }
-                ChessPosition whitePos = new ChessPosition(lastOpponentMove.getEndPosition().getRow() + 1, lastOpponentMove.getEndPosition().getColumn());
-                possibleMoves.add(new ChessMove(startPosition, whitePos, null));
+                ChessPosition wPos = new ChessPosition(lastOpMove.getEndPosition().getRow() + 1, lastOpMove.getEndPosition().getColumn());
+                possibleMoves.add(new ChessMove(startPos, wPos, null));
             }
         }
     }
