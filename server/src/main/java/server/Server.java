@@ -10,26 +10,20 @@ import spark.*;
 
 public class Server {
 
-    // building block method to prevent multiple daos / services / handlers
-    private final GameDAO gameDAO;
     public final AuthDAO authDAO;
     public final UserDAO userDAO;
-
-    private final UserService userService;
-    private final GameService gameService;
-    private final AuthService authService;
-
-
+    public final GameDAO gameDAO;
     private final MasterHandler handler;
 
     public Server() {
+        // building block method to prevent multiple daos / services / handlers
         this.gameDAO = new MemoryGameDao();
         this.authDAO = new MemoryAuthDao();
         this.userDAO = new MemoryUserDao();
 
-        this.authService = new AuthService(authDAO);
-        this.userService = new UserService(userDAO, authDAO, authService);
-        this.gameService = new GameService(gameDAO, authService);
+        AuthService authService = new AuthService(authDAO);
+        UserService userService = new UserService(userDAO, authDAO, authService);
+        GameService gameService = new GameService(gameDAO, authService);
 
         // I am choosing to have only 1 handler
         // I feel like the handlers do very similar things and I didn't want duplicate code
@@ -38,7 +32,6 @@ public class Server {
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
-
         Spark.staticFiles.location("web");
 
         // yayyy api methods
