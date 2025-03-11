@@ -58,9 +58,9 @@ public class MasterHandler {
     }
 
     private int determineErrorCode(String message) {
-        if (message.contains("bad request")) return 400;
-        if (message.contains("unauthorized")) return 401;
-        if (message.contains("forbidden") || message.contains("taken")) return 403;
+        if (message.contains("bad request")) {return 400;}
+        if (message.contains("unauthorized")) {return 401;}
+        if (message.contains("forbidden") || message.contains("taken")) {return 403;}
         return 500;
     }
 
