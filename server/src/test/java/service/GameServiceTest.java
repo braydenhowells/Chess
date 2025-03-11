@@ -6,8 +6,6 @@ import handlers.MasterHandler;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import results.ListResult;
-import spark.Response;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

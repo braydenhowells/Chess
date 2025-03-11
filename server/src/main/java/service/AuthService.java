@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.AuthDAO;
 import model.AuthData;
-import spark.Response;
 
 import java.util.List;
 

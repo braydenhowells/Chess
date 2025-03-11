@@ -6,10 +6,8 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import requests.LoginRequest;
-import requests.LogoutRequest;
 import requests.RegisterRequest;
 import results.LoginResult;
-import results.SimpleResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
