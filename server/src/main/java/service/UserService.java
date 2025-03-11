@@ -3,6 +3,7 @@ package service;
 import java.util.UUID;
 import dataaccess.*; // * imports all from that package
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.LoginRequest;
 import requests.RegisterRequest;
 import results.LoginResult;
@@ -20,36 +21,37 @@ public class UserService {
         this.authService = authService;
     }
 
-    public LoginResult register(RegisterRequest registerRequest) {
-        UserData userdata = userDao.getUser(registerRequest.username());
+    public LoginResult register(RegisterRequest rreq) {
+        UserData userdata = userDao.getUser(rreq.username());
 
         if (!(userdata == null)) {
             return new LoginResult("Error: username is already taken", null, null);
         }
 
-        userDao.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
+        String hashedPassword = BCrypt.hashpw(rreq.password(), BCrypt.gensalt());
+        userDao.createUser(new UserData(rreq.username(), hashedPassword, rreq.email()));
 
-        AuthData authdata = new AuthData(UUID.randomUUID().toString(), registerRequest.username());
+        AuthData authdata = new AuthData(UUID.randomUUID().toString(), rreq.username());
         authDao.createAuth(authdata);
 
-        return new LoginResult(null, registerRequest.username(), authdata.authToken());
+        return new LoginResult(null, rreq.username(), authdata.authToken());
     }
 
-    public LoginResult login(LoginRequest loginRequest) {
-        UserData userData = userDao.getUser(loginRequest.username());
+    public LoginResult login(LoginRequest lreq) {
+        UserData userData = userDao.getUser(lreq.username());
 
         if (userData == null) { // username not in db
             return new LoginResult("Error: unauthorized", null, null);
         }
 
-        if (!userData.password().equals(loginRequest.password())) { // password incorrect
+        if (!BCrypt.checkpw(lreq.password(), userData.password())) { // password incorrect
             return new LoginResult("Error: unauthorized", null, null);
         }
 
         // we know that the username exists and that the password matches. time to make an authToken
-        AuthData authdata = new AuthData(UUID.randomUUID().toString(), loginRequest.username());
+        AuthData authdata = new AuthData(UUID.randomUUID().toString(), lreq.username());
         authDao.createAuth(authdata);
-        return new LoginResult(null, loginRequest.username(), authdata.authToken());
+        return new LoginResult(null, lreq.username(), authdata.authToken());
     }
 
     public SimpleResult logout(String authToken) {
