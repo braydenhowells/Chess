@@ -2,6 +2,7 @@ package server;
 
 import dataaccess.*;
 import handlers.*;
+import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.*;
@@ -16,6 +17,7 @@ public class Server {
 
     private final UserService userService;
     private final GameService gameService;
+    private final AuthService authService;
 
 
     private final MasterHandler handler;
@@ -25,12 +27,13 @@ public class Server {
         this.authDAO = new MemoryAuthDao();
         this.userDAO = new MemoryUserDao();
 
-        this.userService = new UserService(userDAO, authDAO);
-        this.gameService = new GameService(gameDAO);
+        this.authService = new AuthService(authDAO);
+        this.userService = new UserService(userDAO, authDAO, authService);
+        this.gameService = new GameService(gameDAO, authService);
 
         // I am choosing to have only 1 handler
         // I feel like the handlers do very similar things and I didn't want duplicate code
-        this.handler = new MasterHandler(userService, gameService);
+        this.handler = new MasterHandler(userService, gameService, authService);
     }
 
     public int run(int desiredPort) {
