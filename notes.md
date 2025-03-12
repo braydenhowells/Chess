@@ -18,7 +18,7 @@
 +--------------------------+--------------------------------------------+--------------------------------------------+
 
 paste to get into MySQL in the command prompt:
-mysqlsh -u root -pCraig21hhm23! --sql
+mysqlsh -u root -pNewSecurePassword --sql
 
 
 

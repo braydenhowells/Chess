@@ -30,9 +30,11 @@ public class MasterHandler {
         // idk how a 500 error would even look for this one. not sure where to put it
         authService.authClear();
         userService.userClear();
-        gameService.clear();
+        SimpleResult gameResult = gameService.clear();
+        // check all results to be null:
         res.status(200);
         return new Gson().toJson(null);
+
     }
 
     public Object create(Request req, Response res) {

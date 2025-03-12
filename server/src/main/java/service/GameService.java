@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
@@ -9,6 +10,7 @@ import results.CreateResult;
 import results.ListResult;
 import results.SimpleResult;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 // using Arrays.asList here allows null values to enter the list when we use the verifyAuth function
 // this is crucial because any null values in our body parts need to be accounted for
@@ -24,9 +26,19 @@ public class GameService {
         this.authService = authService;
     }
 
-    public void clear() {
-        gameDao.clear();
-        gameIDcounter = 1;
+    public SimpleResult clear() {
+        try {
+            gameDao.clear();
+            gameIDcounter = 1;
+            // return simple result w null message
+            return new SimpleResult(null);
+        }
+        catch (SQLException e) {
+            // return simple result with e.get message as the message
+            return new SimpleResult(e.getMessage());
+        }
+
+
     }
 
     public CreateResult create(String gameName, String authToken) {

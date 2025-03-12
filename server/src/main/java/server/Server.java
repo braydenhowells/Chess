@@ -7,10 +7,6 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
 
 public class Server {
 
@@ -21,7 +17,7 @@ public class Server {
 
     public Server() {
         // building block method to prevent multiple daos / services / handlers
-        this.gameDAO = new MemoryGameDao();
+        this.gameDAO = new SQLGameDao();
         this.authDAO = new MemoryAuthDao();
         this.userDAO = new MemoryUserDao();
 
@@ -34,11 +30,9 @@ public class Server {
         this.handler = new MasterHandler(userService, gameService, authService);
     }
 
-    public int run(int desiredPort) throws SQLException {
+    public int run(int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
-
-        configureDatabase();
 
         // yayyy api methods
         Spark.post("/user", (req, res) -> handler.register(req, res));
@@ -58,37 +52,5 @@ public class Server {
         Spark.awaitStop();
     }
 
-    Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "NewSecurePassword");
-    }
-
-    void makeSQLCalls() throws SQLException {
-        try (var conn = getConnection()) {
-            // Execute SQL statements on the connection here
-        }
-    }
-
-
-    void configureDatabase() throws SQLException {
-        try (var conn = getConnection()) {
-            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS pet_store");
-            createDbStatement.executeUpdate();
-
-            conn.setCatalog("pet_store");
-
-            var createPetTable = """
-            CREATE TABLE  IF NOT EXISTS pet (
-                id INT NOT NULL AUTO_INCREMENT,
-                name VARCHAR(255) NOT NULL,
-                type VARCHAR(255) NOT NULL,
-                PRIMARY KEY (id)
-            )""";
-
-
-            try (var createTableStatement = conn.prepareStatement(createPetTable)) {
-                createTableStatement.executeUpdate();
-            }
-        }
-    }
 
 }

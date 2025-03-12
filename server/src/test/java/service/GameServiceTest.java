@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GameServiceTest {
@@ -20,14 +22,14 @@ class GameServiceTest {
     static MasterHandler handler = new MasterHandler(userService, gameService, authService);
 
     @BeforeEach
-    void reset() {
+    void reset() throws SQLException {
         gameDAO.clear();
         userDAO.clear();
         authDAO.clear();
     }
 
     @Test
-    void clear() {
+    void clear() throws SQLException {
         gameDAO.create(new GameData(1, "white", "black", "ggNoRe", new ChessGame()));
         gameDAO.clear();
 
