@@ -15,8 +15,9 @@ public class MemoryGameDao implements GameDAO {
         ALL_GAMES.clear();
     }
 
-    public void create(GameData data) {
+    public int create(GameData data) {
         ALL_GAMES.put(String.valueOf(data.gameID()), data);
+        return data.gameID();
     }
 
     public List<GameData> findAll() {

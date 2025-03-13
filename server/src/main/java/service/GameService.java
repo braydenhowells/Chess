@@ -18,7 +18,6 @@ import java.util.Arrays;
 
 public class GameService {
     private final GameDAO gameDao;
-    private int gameIDcounter = 1;
     private final AuthService authService;
 
     public GameService(GameDAO gameDao, AuthService authService) {
@@ -29,7 +28,6 @@ public class GameService {
     public SimpleResult clear() {
         try {
             gameDao.clear();
-            gameIDcounter = 1;
             // return simple result w null message
             return new SimpleResult(null);
         }
@@ -46,10 +44,17 @@ public class GameService {
         if (verification.contains("Error")) {
             return new CreateResult(null, verification);
         }
-        GameData data = new GameData(this.gameIDcounter, null, null, gameName, new ChessGame());
-        gameDao.create(data);
-        this.gameIDcounter += 1;
-        return new CreateResult(String.valueOf(data.gameID()), null);
+
+        try {
+            GameData data = new GameData(0, null, null, gameName, new ChessGame());
+            int gameID = gameDao.create(data);
+            // return simple result w null message
+            return new CreateResult(String.valueOf(gameID), null);
+        }
+        catch (SQLException e) {
+            // return simple result with e.get message as the message
+            return new CreateResult(null, e.getMessage());
+        }
     }
 
     public ListResult getGames(String authToken) {
@@ -61,7 +66,12 @@ public class GameService {
     }
 
     public GameData findGame(String gameID) {
-        return gameDao.find(gameID);
+        try {
+            return gameDao.find(gameID);
+        }
+        catch (SQLException e) {
+            return null;
+        }
     }
 
     public SimpleResult join(GameData gameData, String color, String authToken, JoinRequest jreq) {
@@ -109,19 +119,27 @@ public class GameService {
         }
 
 
-        // thought process is delete the old one, and keep the new one but set the new username
-        if (color.equals("BLACK")) {
-            gameDao.remove(String.valueOf(gameData.gameID()));
-            gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game()));
-        }
+        try {
 
-        if (color.equals("WHITE")) {
-            gameDao.remove(String.valueOf(gameData.gameID()));
-            gameDao.create(new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game()));
-        }
+            // thought process is delete the old one, and keep the new one but set the new username
+            if (color.equals("BLACK")) {
+                gameDao.remove(String.valueOf(gameData.gameID()));
+                gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game()));
+            }
 
-        // done, so return an empty message
-        return new SimpleResult(null);
+            if (color.equals("WHITE")) {
+                gameDao.remove(String.valueOf(gameData.gameID()));
+                gameDao.create(new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game()));
+            }
+
+            // done, so return an empty message
+            return new SimpleResult(null);
+
+        }
+        catch (SQLException e) {
+            // return simple result with e.get message as the message
+            return new SimpleResult(e.getMessage());
+        }
 
     }
 }

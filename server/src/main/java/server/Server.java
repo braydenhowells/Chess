@@ -24,13 +24,20 @@ public class Server {
         AuthService authService = new AuthService(authDAO);
         UserService userService = new UserService(userDAO, authDAO, authService);
         GameService gameService = new GameService(gameDAO, authService);
-
         // I am choosing to have only 1 handler
         // I feel like the handlers do very similar things and I didn't want duplicate code
         this.handler = new MasterHandler(userService, gameService, authService);
+
+        // start up the db here, set up all tables if we have not already
+        DatabaseStarter.configureDatabase();
     }
 
     public int run(int desiredPort) {
+
+        // stop any existing spark server before starting a new one
+        Spark.stop();
+        Spark.awaitStop();  // make sure it is legit stopped. this caused my weird errors
+
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 

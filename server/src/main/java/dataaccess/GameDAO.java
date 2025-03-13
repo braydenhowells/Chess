@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface GameDAO {
     void clear() throws SQLException;
-    void create(GameData data);
+    int create(GameData data) throws SQLException;
     List<GameData> findAll();
-    GameData find(String gameID);
-    void remove(String gameID);
+    GameData find(String gameID) throws SQLException;
+    void remove(String gameID) throws SQLException;
 }
