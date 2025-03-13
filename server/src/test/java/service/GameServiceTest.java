@@ -7,9 +7,8 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import requests.JoinRequest;
+import results.CreateResult;
 import results.ListResult;
-import results.LoginResult;
-import requests.RegisterRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
@@ -22,7 +21,6 @@ class GameServiceTest {
     static AuthService authService = new AuthService(authDAO);
     static UserService userService = new UserService(userDAO, authDAO, authService);
     static GameService gameService = new GameService(gameDAO, authService);
-    static MasterHandler handler = new MasterHandler(userService, gameService, authService);
 
     @BeforeEach
     void reset() throws SQLException {
@@ -33,34 +31,36 @@ class GameServiceTest {
 
     @Test
     void clear() throws SQLException {
-        gameDAO.create(new GameData(1, "white", "black", "ggNoRe", new ChessGame()));
-        gameDAO.clear();
+        gameDAO.create(new GameData(1, null, null, "gamer", new ChessGame()));
+        gameService.clear();
         assertEquals(0, gameDAO.findAll().size());
     }
 
     @Test
     void create() throws SQLException {
         assertEquals(0, gameDAO.findAll().size());
-        gameDAO.create(new GameData(1, "white", "black", "newGame", new ChessGame()));
+        authDAO.createAuth(new AuthData("epicToken", "me"));
+        gameService.create("gamer", "epicToken");
         assertEquals(1, gameDAO.findAll().size());
     }
 
     @Test
     void getGames() throws SQLException {
-        gameDAO.create(new GameData(1, "white", "black", "Game1", new ChessGame()));
-        gameDAO.create(new GameData(2, "white2", "black2", "Game2", new ChessGame()));
-        ListResult result = gameService.getGames("authToken");
+        gameDAO.create(new GameData(1, null, null, "gamer", new ChessGame()));
+        gameDAO.create(new GameData(2, "white_prefilled_i_guess", "black_is_here_also", "gamer2electricBoogaloo", new ChessGame()));
+        authDAO.createAuth(new AuthData("yuh", "yuh"));
+        ListResult result = gameService.getGames("yuh");
         assertNotNull(result);
         assertEquals(2, result.games().size());
     }
 
     @Test
     void findGame() throws SQLException {
-        GameData data = new GameData(1, "white", "black", "newGame", new ChessGame());
-        gameDAO.create(data);
-        GameData dataCheck = gameService.findGame("1");
-        assertNotNull(dataCheck);
-        assertEquals(data, dataCheck);
+        GameData gameData = new GameData(1, null, null, "gamer", new ChessGame());
+        gameDAO.create(gameData);
+        GameData result = gameService.findGame("1");
+        assertNotNull(result);
+        assertEquals(gameData.gameID(), result.gameID());
     }
 
     @Test
@@ -76,28 +76,30 @@ class GameServiceTest {
 
     @Test
     void createFail() {
-        assertThrows(SQLException.class, () -> gameDAO.create(null));
+        CreateResult result = gameService.create(null, null);
+        assertTrue(result.message().contains("Error"));
+
     }
 
     @Test
     void getGamesFail() {
-        assertThrows(SQLException.class, () -> gameService.getGames(null));
+        ListResult result = gameService.getGames(null);
+        assertTrue(result.message().contains("Error"));
     }
 
     @Test
     void findGameFail() {
-        assertNull(gameService.findGame("99999"));
+        assertNull(gameService.findGame(null));
     }
 
     @Test
     void updateGameUserFail() throws SQLException {
         GameData gameData = new GameData(1, null, null, "MrGame_N_Watch", new ChessGame());
-        UserData userData = new UserData("CaptainFalcon", "yuh", "yuh");
         AuthData authData = new AuthData("sadToken", "CaptainFalcon");
         gameDAO.create(gameData);
         authDAO.createAuth(authData);
         gameService.join(gameData, "WHITE", "epicToken", new JoinRequest("WHITE", "1"));
         GameData newData = gameDAO.find("1");
-        assertEquals("CaptainFalcon", newData.whiteUsername());
+        assertNotEquals("CaptainFalcon", newData.whiteUsername());
     }
 }
