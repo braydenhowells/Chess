@@ -69,12 +69,59 @@ public class SQLUserDao implements UserDAO{
 
 
     @Override
-    public void clear() {
+    public void clear() throws SQLException {
+        // prep the statement
+        String statement = "TRUNCATE users";
 
+        // try with resources
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+
+                // sanity check / debug
+                System.out.println("inside of user clear");
+                System.out.println(statement);
+
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new SQLException(e.getMessage());
+        }
     }
+
 
     @Override
-    public ArrayList<UserData> getAllUsers() {
-        return null;
+    public ArrayList<UserData> getAllUsers() throws SQLException {
+        // prep the statement
+        String statement = "SELECT username, password, email FROM users";
+
+        // list for all users
+        ArrayList<UserData> usersList = new ArrayList<>();
+
+        // try with resources
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(statement);
+             var resultSet = preparedStatement.executeQuery()) {
+
+            // loop and add to list
+            while (resultSet.next()) {
+                String retrievedUsername = resultSet.getString("username");
+                String retrievedPassword = resultSet.getString("password");
+                String retrievedEmail = resultSet.getString("email");
+
+                // sanity check / debug
+                System.out.println("inside of getAllUsers");
+                System.out.println("Retrieved username: " + retrievedUsername);
+                System.out.println("Retrieved email: " + retrievedEmail);
+
+                // create a new UserData object and add it to the list
+                usersList.add(new UserData(retrievedUsername, retrievedPassword, retrievedEmail));
+            }
+
+        } catch (DataAccessException | SQLException e) {
+            throw new SQLException(e.getMessage());
+        }
+
+        return usersList; // return the list when finished
     }
+
 }

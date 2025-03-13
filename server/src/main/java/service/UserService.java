@@ -43,7 +43,12 @@ public class UserService {
         }
 
         AuthData authdata = new AuthData(UUID.randomUUID().toString(), rreq.username());
-        authDao.createAuth(authdata);
+        try {
+            authDao.createAuth(authdata);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
 
         return new LoginResult(null, rreq.username(), authdata.authToken());
     }
@@ -68,7 +73,11 @@ public class UserService {
 
         // we know that the username exists and that the password matches. time to make an authToken
         AuthData authdata = new AuthData(UUID.randomUUID().toString(), lreq.username());
-        authDao.createAuth(authdata);
+        try {
+            authDao.createAuth(authdata);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
         return new LoginResult(null, lreq.username(), authdata.authToken());
     }
 
@@ -81,11 +90,22 @@ public class UserService {
         // good path
         if (verification.contains("verified")) {
             // now we know that the token is legit. let's proceed
-            AuthData authData = authDao.findAuthData(authToken);
+            AuthData authData;
+            try {
+                authData = authDao.findAuthData(authToken);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+                authData = null;
+            }
+
             if (authData == null) {
                 return new SimpleResult("Error: unauthorized");
             }
-            authDao.deleteAuthData(authData);
+            try {
+                authDao.deleteAuthData(authData);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
             return new SimpleResult(null);
         }
         // wacky path
@@ -97,7 +117,11 @@ public class UserService {
     }
 
     public void userClear() {
-        userDao.clear();
+        try {
+            userDao.clear();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 }

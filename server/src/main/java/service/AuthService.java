@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import model.AuthData;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class AuthService {
@@ -35,11 +36,20 @@ public class AuthService {
     }
 
     public AuthData getAuthData(String authToken) {
-        return authDao.findAuthData(authToken);
+        try {
+            return authDao.findAuthData(authToken);
+        } catch (SQLException e) {
+            return null;
+        }
+
     }
 
     public void authClear() {
-        authDao.clear();
+        try {
+            authDao.clear();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 }
