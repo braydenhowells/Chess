@@ -1,117 +1,106 @@
-//package service;
-//
-//import dataaccess.*;
-//import model.AuthData;
-//import model.UserData;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import requests.LoginRequest;
-//import requests.RegisterRequest;
-//import results.LoginResult;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//
-//class UserServiceTest {
-//    static UserDAO userDAO = new MemoryUserDao();
-//    static AuthDAO authDAO = new MemoryAuthDao();
-//    static AuthService authService = new AuthService(authDAO);
-//    static UserService service = new UserService(userDAO, authDAO, authService);
-//
-////    @BeforeEach
-////    void reset() {
-////        authDAO.clear();
-////        userDAO.clear();
-////    }
-//
-//    // success tests
-//
-//    @Test
-//    void register() {
-//        RegisterRequest request = new RegisterRequest("user", "pass", "email");
-//        LoginResult result = service.register(request);
-//        assertEquals(result.username(), request.username());
-//    }
-//
-//    @Test
-//    void login() {
-//        service.register(new RegisterRequest("user", "pass", "email"));
-//        LoginRequest request = new LoginRequest("user", "pass");
-//        LoginResult result = service.login(request);
-//        assertEquals(result.username(), request.username());
-//    }
-//
-////    @Test
-////    void logout() {
-////        authDAO.createAuth(new AuthData("token", "user"));
-////        userDAO.createUser(new UserData("user", "pass", "email"));
-////
-////        SimpleResult result = service.logout(new LogoutRequest("token"));
-////        assertNull(result.message());
-////
-////
-//
-//    @Test
-//    void userClear() throws DataAccessException {
-//        service.register(new RegisterRequest("user", "pass", "email"));
-//        service.register(new RegisterRequest("user1", "pass1", "email1"));
-//
-//        service.userClear();
-//        assertEquals(0, userDAO.getAllUsers().size());
-//    }
-//
-//    @Test
-//    void authClear() throws DataAccessException {
-//        AuthData data = new AuthData("epicToken", "epicUser");
-//        AuthData data1 = new AuthData("epicToken1", "epicUser1");
-//        authDAO.createAuth(data);
-//        authDAO.createAuth(data1);
-//
-//        authService.authClear();
-//        assertEquals(0, authDAO.getAllAuth().size());
-//    }
-//
-//    @Test
-//    void getAuthData() throws DataAccessException {
-//        AuthData data = new AuthData("epicToken", "epicUser");
-//        authDAO.createAuth(data);
-//        AuthData result = authService.getAuthData("epicToken");
-//
-//        assertEquals(data, result);
-//    }
-//
-//    // failure tests
-//
-//    @Test
-//    void registerFail() {
-//        userDAO.createUser(new UserData("user", "pass", "email"));
-//        RegisterRequest request = new RegisterRequest("user", "pass", "email");
-//        LoginResult result = service.register(request);
-//        assertTrue(result.message().contains("Error"));
-//    }
-//
-//    @Test
-//    void loginFail() {
-//        service.register(new RegisterRequest("user1", "pass", "email"));
-//        LoginRequest request = new LoginRequest("user1", "pass_wacky");
-//        LoginResult result1 = service.login(request);
-//        assertTrue(result1.message().contains("Error"));
-//    }
-//
-////    @Test
-////    void logoutFail() {
-////        authDAO.createAuth(new AuthData("token", "user"));
-////        SimpleResult resulty = service.logout(new LogoutRequest("kanye west graduation instrumentals are playing rn"));
-////
-////        assertTrue(resulty.message().contains("Error"));
-////    }
-//
-//    @Test
-//    void getAuthDataFail() throws DataAccessException {
-//        AuthData data = new AuthData("epicToken", "epicUser");
-//        authDAO.createAuth(data);
-//        AuthData result = authService.getAuthData("sad");
-//
-//        assertNull(result);
-//    }
-//
-//}
+package service;
+
+import dataaccess.*;
+import model.AuthData;
+import model.UserData;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import requests.LoginRequest;
+import requests.RegisterRequest;
+import results.LoginResult;
+import results.SimpleResult;
+
+import java.sql.SQLException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class UserServiceTest {
+    static UserDAO userDAO = new SQLUserDao();
+    static AuthDAO authDAO = new SQLAuthDao();
+    static AuthService authService = new AuthService(authDAO);
+    static UserService userService = new UserService(userDAO, authDAO, authService);
+
+    @BeforeEach
+    void reset() throws SQLException {
+        userDAO.clear();
+        authDAO.clear();
+    }
+
+    @Test
+    void register() throws SQLException {
+        RegisterRequest request = new RegisterRequest("user", "pass", "email");
+        LoginResult result = userService.register(request);
+        assertEquals(request.username(), result.username());
+    }
+
+    @Test
+    void login() throws SQLException {
+        userService.register(new RegisterRequest("user", "pass", "email"));
+        LoginRequest request = new LoginRequest("user", "pass");
+        LoginResult result = userService.login(request);
+        assertEquals(request.username(), result.username());
+    }
+
+    @Test
+    void logout() throws SQLException {
+        authDAO.createAuth(new AuthData("token", "user"));
+        userDAO.createUser(new UserData("user", "pass", "email"));
+        SimpleResult result = userService.logout("token");
+        assertNull(result.message());
+    }
+
+    @Test
+    void userClear() throws SQLException {
+        userService.register(new RegisterRequest("user", "pass", "email"));
+        userService.register(new RegisterRequest("user1", "pass1", "email1"));
+        userService.userClear();
+        assertEquals(0, userDAO.getAllUsers().size());
+    }
+
+    @Test
+    void authClear() throws SQLException {
+        AuthData data = new AuthData("epicToken", "gang");
+        AuthData data1 = new AuthData("epicToken1", "gang2electricBoogaloo");
+        authDAO.createAuth(data);
+        authDAO.createAuth(data1);
+        authService.authClear();
+        assertEquals(0, authDAO.getAllAuth().size());
+    }
+
+    @Test
+    void getAuthData() throws SQLException {
+        AuthData data = new AuthData("epicToken", "epicUser");
+        authDAO.createAuth(data);
+        AuthData result = authService.getAuthData("epicToken");
+        assertEquals(data, result);
+    }
+
+    @Test
+    void registerFail() throws SQLException {
+        userDAO.createUser(new UserData("user", "pass", "email"));
+        RegisterRequest request = new RegisterRequest("user", "pass", "email");
+        LoginResult result = userService.register(request);
+        assertTrue(result.message().contains("Error"));
+    }
+
+    @Test
+    void loginFail() throws SQLException {
+        userService.register(new RegisterRequest("user1", "pass", "email"));
+        LoginRequest request = new LoginRequest("user1", "pass_wacky");
+        LoginResult result = userService.login(request);
+        assertTrue(result.message().contains("Error"));
+    }
+
+    @Test
+    void logoutFail() throws SQLException {
+        authDAO.createAuth(new AuthData("token", "user"));
+        SimpleResult result = userService.logout("boof pack");
+        assertTrue(result.message().contains("Error"));
+    }
+
+    @Test
+    void getAuthDataFail() throws SQLException {
+        AuthData result = authService.getAuthData("wacky_token_hopefully_this_returns_null");
+        assertNull(result);
+    }
+}
