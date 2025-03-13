@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,7 +31,7 @@ public class SQLGameDao implements GameDAO{
         String chessGameObjectString = new Gson().toJson(data.game());
 
         String statement;
-        // first statement: one for initial creation (dummy ID = 69)
+        // first statement: one for initial creation (dummy ID = 0)
         if (data.gameID() == 0) {
             statement = "INSERT INTO games (game_json, name, whiteUsername, blackUsername) VALUES (?, ?, ?, ?)";
         }
@@ -74,9 +75,44 @@ public class SQLGameDao implements GameDAO{
     }
 
     @Override
-    public List<GameData> findAll() {
-        return List.of();
+    public List<GameData> findAll() throws SQLException {
+        // prep statement
+        String statement = "SELECT gameID, game_json, whiteUsername, blackUsername, name FROM games";
+
+        // list for all games
+        List<GameData> gamesList = new ArrayList<>();
+
+        // try w resources
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(statement);
+             var resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                int retrievedGameID = resultSet.getInt("gameID");
+                String gameJson = resultSet.getString("game_json");
+                String whiteUsername = resultSet.getString("whiteUsername");
+                String blackUsername = resultSet.getString("blackUsername");
+                String gameName = resultSet.getString("name");
+
+                System.out.println("Retrieved gameID: " + retrievedGameID);
+                System.out.println("White Player: " + whiteUsername);
+                System.out.println("Black Player: " + blackUsername);
+                System.out.println("Game Name: " + gameName);
+
+                // make sure game is a json
+                ChessGame chessGame = new Gson().fromJson(gameJson, ChessGame.class);
+
+                // add this game and game data to our list
+                gamesList.add(new GameData(retrievedGameID, whiteUsername, blackUsername, gameName, chessGame));
+            }
+
+        } catch (DataAccessException | SQLException e) {
+            throw new SQLException(e.getMessage());
+        }
+
+        return gamesList; // return when finished
     }
+
 
     @Override
     public GameData find(String gameID) throws SQLException {
@@ -109,7 +145,6 @@ public class SQLGameDao implements GameDAO{
                         // turn chess json into a chess game object before returning
                         ChessGame chessGame = new Gson().fromJson(gameJson, ChessGame.class);
                         return new GameData(retrievedGameID, whiteUsername, blackUsername, gameName, chessGame);
-
                     }
                 }
             }

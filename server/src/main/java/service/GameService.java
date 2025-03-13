@@ -62,7 +62,13 @@ public class GameService {
         if (verification.contains("Error")) {
             return new ListResult(verification, null);
         }
-        return new ListResult(null, gameDao.findAll());
+
+        try {
+            return new ListResult(null, gameDao.findAll());
+        } catch (SQLException e) {
+            return new ListResult(e.getMessage(), null);
+        }
+
     }
 
     public GameData findGame(String gameID) {
