@@ -1,5 +1,6 @@
 package service;
 
+import java.sql.SQLException;
 import java.util.UUID;
 import dataaccess.*; // * imports all from that package
 import model.*;
@@ -22,14 +23,24 @@ public class UserService {
     }
 
     public LoginResult register(RegisterRequest rreq) {
-        UserData userdata = userDao.getUser(rreq.username());
-
-        if (!(userdata == null)) {
-            return new LoginResult("Error: username is already taken", null, null);
+        UserData userData;
+        try {
+            userData = userDao.getUser(rreq.username());
+        } catch (SQLException e) {
+            return new LoginResult(e.getMessage(), null, null);
         }
 
+
+        if (!(userData == null)) {
+            return new LoginResult("Error: username is already taken", null, null);
+        }
         String hashedPassword = BCrypt.hashpw(rreq.password(), BCrypt.gensalt());
-        userDao.createUser(new UserData(rreq.username(), hashedPassword, rreq.email()));
+
+        try {
+            userDao.createUser(new UserData(rreq.username(), hashedPassword, rreq.email()));
+        } catch (SQLException e) {
+            return new LoginResult(e.getMessage(), null, null);
+        }
 
         AuthData authdata = new AuthData(UUID.randomUUID().toString(), rreq.username());
         authDao.createAuth(authdata);
@@ -38,7 +49,14 @@ public class UserService {
     }
 
     public LoginResult login(LoginRequest lreq) {
-        UserData userData = userDao.getUser(lreq.username());
+        UserData userData;
+        try {
+            userData = userDao.getUser(lreq.username());
+        }
+        catch (SQLException e) {
+            return new LoginResult(e.getMessage(), null, null);
+        }
+
 
         if (userData == null) { // username not in db
             return new LoginResult("Error: unauthorized", null, null);

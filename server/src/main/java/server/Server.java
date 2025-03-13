@@ -19,7 +19,7 @@ public class Server {
         // building block method to prevent multiple daos / services / handlers
         this.gameDAO = new SQLGameDao();
         this.authDAO = new MemoryAuthDao();
-        this.userDAO = new MemoryUserDao();
+        this.userDAO = new SQLUserDao();
 
         AuthService authService = new AuthService(authDAO);
         UserService userService = new UserService(userDAO, authDAO, authService);
