@@ -61,7 +61,7 @@ class GameDAOTest {
 
 
     @Test
-    void createFail() throws SQLException {
+    void createFail() {
         boolean fail = false;
         GameData gameData = new GameData(1, null, null, null, new ChessGame());
         try {
