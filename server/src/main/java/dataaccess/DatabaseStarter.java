@@ -3,7 +3,7 @@ package dataaccess;
 import java.sql.SQLException;
 
 public class DatabaseStarter {
-    private static final String[] createStatements = {
+    private static final String[] CREATE_STATEMENTS = {
             // games
             """
             CREATE TABLE IF NOT EXISTS games (
@@ -38,7 +38,7 @@ public class DatabaseStarter {
         try {
             DatabaseManager.createDatabase();
             try (var conn = DatabaseManager.getConnection()) {
-                for (var statement : createStatements) {
+                for (var statement : CREATE_STATEMENTS) {
                     try (var preparedStatement = conn.prepareStatement(statement)) {
                         preparedStatement.executeUpdate();
                         System.out.println("inside of config");
