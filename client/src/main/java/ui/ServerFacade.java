@@ -1,4 +1,4 @@
-package server;
+package ui;
 
 import com.google.gson.Gson;
 
@@ -22,12 +22,9 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
-    public SimpleResult register(RegisterRequest request) {
-        // fill with actual stuff
-
-        // var path = "/register";
-        // return this.makeRequest(filled with params)
-        return new SimpleResult(null);
+    public SimpleResult register(RegisterRequest request) throws ResponseException {
+        var path = "/user";
+        return this.makeRequest("POST", path, request, SimpleResult.class);
     }
 
     public SimpleResult join(JoinRequest request) {
