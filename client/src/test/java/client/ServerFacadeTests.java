@@ -7,14 +7,14 @@ import server.Server;
 public class ServerFacadeTests {
 
     private static Server server;
-    // static ServerFacade facade;
+    // static server.ServerFacade facade;
 
     @BeforeAll
     public static void init() {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        // facade = new ServerFacade(port)
+        // facade = new server.ServerFacade(port)
     }
 
     @AfterAll
@@ -35,6 +35,7 @@ public class ServerFacadeTests {
 
     @Test
     void register() throws Exception {
+        // pasted from the md
         // var authData = facade.register("player1", "password", "p1@email.com");
         // assertTrue(authData.authToken().length() > 10);
         Assertions.assertTrue(true);
