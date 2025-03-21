@@ -11,7 +11,6 @@ import results.LoginResult;
 import results.SimpleResult;
 
 import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
@@ -27,14 +26,14 @@ class UserServiceTest {
     }
 
     @Test
-    void register() throws SQLException {
+    void register() {
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         LoginResult result = userService.register(request);
         assertEquals(request.username(), result.username());
     }
 
     @Test
-    void login() throws SQLException {
+    void login() {
         userService.register(new RegisterRequest("user", "pass", "email"));
         LoginRequest request = new LoginRequest("user", "pass");
         LoginResult result = userService.login(request);
@@ -84,7 +83,7 @@ class UserServiceTest {
     }
 
     @Test
-    void loginFail() throws SQLException {
+    void loginFail() {
         userService.register(new RegisterRequest("user1", "pass", "email"));
         LoginRequest request = new LoginRequest("user1", "pass_wacky");
         LoginResult result = userService.login(request);
@@ -99,7 +98,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getAuthDataFail() throws SQLException {
+    void getAuthDataFail() {
         AuthData result = authService.getAuthData("wacky_token_hopefully_this_returns_null");
         assertNull(result);
     }

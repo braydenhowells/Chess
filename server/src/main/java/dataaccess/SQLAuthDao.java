@@ -87,14 +87,7 @@ public class SQLAuthDao implements AuthDAO {
             // set the ? value to be the auth token
             preparedStatement.setString(1, data.authToken());
 
-            int affectedRows = preparedStatement.executeUpdate();
-
-            // sanity check / debug
-            if (affectedRows > 0) {
-                System.out.println("Auth deleted for token: " + data.authToken());
-            } else {
-                System.out.println("No auth found for token: " + data.authToken());
-            }
+            preparedStatement.executeUpdate();
 
         } catch (DataAccessException | SQLException e) {
             throw new SQLException("Error deleting auth data", e);

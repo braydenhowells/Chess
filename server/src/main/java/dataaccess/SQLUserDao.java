@@ -27,10 +27,6 @@ public class SQLUserDao implements UserDAO{
                         String retrievedPassword = resultSet.getString("password");
                         String retrievedEmail = resultSet.getString("email");
 
-                        System.out.println("inside of getUser");
-                        System.out.println("Retrieved username: " + retrievedUsername);
-                        System.out.println("Retrieved email: " + retrievedEmail);
-
                         // make into object before return
                         return new UserData(retrievedUsername, retrievedPassword, retrievedEmail);
                     }
@@ -58,9 +54,6 @@ public class SQLUserDao implements UserDAO{
                 preparedStatement.setString(3, data.email());
 
                 preparedStatement.executeUpdate();
-
-                // sanity check / debug
-                System.out.println("✅ User created with username: " + data.username());
             }
         } catch (DataAccessException | SQLException e) {
             throw new SQLException(e.getMessage());
@@ -77,11 +70,6 @@ public class SQLUserDao implements UserDAO{
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
-
-                // sanity check / debug
-                System.out.println("inside of user clear");
-                System.out.println(statement);
-
             }
         } catch (DataAccessException | SQLException e) {
             throw new SQLException(e.getMessage());
@@ -107,11 +95,6 @@ public class SQLUserDao implements UserDAO{
                 String retrievedUsername = resultSet.getString("username");
                 String retrievedPassword = resultSet.getString("password");
                 String retrievedEmail = resultSet.getString("email");
-
-                // sanity check / debug
-                System.out.println("inside of getAllUsers");
-                System.out.println("Retrieved username: " + retrievedUsername);
-                System.out.println("Retrieved email: " + retrievedEmail);
 
                 // create a new UserData object and add it to the list
                 usersList.add(new UserData(retrievedUsername, retrievedPassword, retrievedEmail));

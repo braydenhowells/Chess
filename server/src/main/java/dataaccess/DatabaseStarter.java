@@ -41,8 +41,6 @@ public class DatabaseStarter {
                 for (var statement : CREATE_STATEMENTS) {
                     try (var preparedStatement = conn.prepareStatement(statement)) {
                         preparedStatement.executeUpdate();
-                        System.out.println("inside of config");
-                        System.out.println(statement);
                     }
                 }
             }
