@@ -76,7 +76,7 @@ public class ServerFacadeTests {
 
         CreateRequest creq = new CreateRequest("testGame");
         CreateResult result = facade.create(creq);
-        assertNull(result.message());
+        assertEquals("1", result.gameID());
     }
 
 
