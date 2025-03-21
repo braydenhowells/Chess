@@ -8,6 +8,7 @@ import java.io.*;
 import exception.ResponseException;
 import requests.CreateRequest;
 import requests.JoinRequest;
+import requests.LogoutRequest;
 import requests.RegisterRequest;
 import results.CreateResult;
 import results.LoginResult;
@@ -39,13 +40,26 @@ public class ServerFacade {
         }
     }
 
-    // login prolly
+    // logout prolly
+    public SimpleResult logout(LogoutRequest request) {
+        var path = "/session";
+        try {
+            var result = this.makeRequest("DELETE", path, request, SimpleResult.class);
+            // reset auth token since we are logged out
+            authToken = "";
+            return result;
+
+        } catch (ResponseException e) {
+            return new SimpleResult(e.getMessage());
+        }
+    }
+
+    // login
 
     public SimpleResult clear() throws ResponseException {
         var path = "/db";
         return this.makeRequest("DELETE", path, null, SimpleResult.class);
     }
-
 
     public CreateResult create(CreateRequest request) {
         var path = "/game";

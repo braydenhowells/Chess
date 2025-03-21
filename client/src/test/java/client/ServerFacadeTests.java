@@ -3,6 +3,7 @@ package client;
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import requests.CreateRequest;
+import requests.LogoutRequest;
 import requests.RegisterRequest;
 import results.CreateResult;
 import results.LoginResult;
@@ -88,5 +89,22 @@ public class ServerFacadeTests {
         CreateResult result = facade.create(creq);
         assertTrue(result.message().contains("bad request"));
     }
+
+    @Test
+    public void logout() {
+        // register like normal
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        LoginResult result = facade.register(request);
+        String auth = result.authToken();
+
+        // try to create without getting an auth token
+        LogoutRequest lreq = new LogoutRequest(auth);
+        SimpleResult result2 = facade.logout(lreq);
+        assertNull(result2.message());
+    }
+
+
+
+
 
 }
