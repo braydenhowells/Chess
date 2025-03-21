@@ -10,6 +10,7 @@ import requests.CreateRequest;
 import requests.JoinRequest;
 import requests.RegisterRequest;
 import results.CreateResult;
+import results.LoginResult;
 import results.SimpleResult;
 
 import java.net.HttpURLConnection;
@@ -19,26 +20,47 @@ import java.net.URL;
 public class ServerFacade {
 
     private final String serverUrl;
+    private String authToken;
 
     public ServerFacade(String serverUrl) {
         this.serverUrl = serverUrl;
     }
 
-    public SimpleResult register(RegisterRequest request) throws ResponseException {
+    public LoginResult register(RegisterRequest request) {
         var path = "/user";
-        return this.makeRequest("POST", path, request, SimpleResult.class);
+        try {
+            var result = this.makeRequest("POST", path, request, LoginResult.class);
+            // set this so we can use it later in other calls
+            authToken = result.authToken();
+            return result;
+
+        } catch (ResponseException e) {
+            return new LoginResult(e.getMessage(), null, null);
+        }
     }
+
+    // login prolly
 
     public SimpleResult clear() throws ResponseException {
         var path = "/db";
         return this.makeRequest("DELETE", path, null, SimpleResult.class);
     }
 
-    public CreateResult create(CreateRequest request) throws ResponseException {
+
+    public CreateResult create(CreateRequest request) {
         var path = "/game";
-        return this.makeRequest("POST", path, request, CreateResult.class);
+        try {
+            return this.makeRequest("POST", path, request, CreateResult.class);
+        } catch (ResponseException e) {
+            return new CreateResult(null, e.getMessage());
+        }
     }
 
+
+
+
+
+    // methods for actually talking to server w the request objects
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             // debug
@@ -48,6 +70,12 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            // in header, use the auth token stored if we have one
+            if (authToken != null) {
+                http.setRequestProperty("Authorization", authToken); // 💥 Add this line
+            }
+
 
             writeBody(request, http);
             http.connect();

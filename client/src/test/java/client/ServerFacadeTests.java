@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import requests.CreateRequest;
 import requests.RegisterRequest;
 import results.CreateResult;
+import results.LoginResult;
 import results.SimpleResult;
 import server.Server;
 
@@ -47,32 +48,34 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void register() throws Exception {
+    void register() {
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
-        SimpleResult result = facade.register(request);
+        LoginResult result = facade.register(request);
+        // make sure all the fields are good
+        assertNotNull(result.authToken());
         assertNull(result.message());
+        assertEquals("player1", result.username());
     }
 
     @Test
-    void registerFail() throws Exception {
+    void registerFail() {
         // register like normal
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
-        SimpleResult result = facade.register(request);
-        assertNull(result.message());
+        facade.register(request);
 
         // now try to register again, should throw an error
-        try {
-            facade.register(request);
-        } catch (ResponseException e) {
-            String message = e.getMessage();
-            assertTrue(message.contains("already taken"));
-        }
+        LoginResult result2 = facade.register(request);
+        assertTrue(result2.message().contains("already taken"));
     }
 
     @Test
-    public void create() throws Exception {
-        CreateRequest request = new CreateRequest("testGame");
-        CreateResult result = facade.create(request);
+    public void create() {
+        // register to get an auth token
+        RegisterRequest rreq = new RegisterRequest("player1", "password", "p1@email.com");
+        facade.register(rreq);
+
+        CreateRequest creq = new CreateRequest("testGame");
+        CreateResult result = facade.create(creq);
         assertNull(result.message());
     }
 
