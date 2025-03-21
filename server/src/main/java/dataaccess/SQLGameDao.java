@@ -17,8 +17,6 @@ public class SQLGameDao implements GameDAO{
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
-                System.out.println("inside of game clear");
-                System.out.println(statement);
             }
         } catch (DataAccessException | SQLException e) {
             throw new SQLException(e.getMessage());
@@ -55,15 +53,9 @@ public class SQLGameDao implements GameDAO{
 
                 preparedStatement.executeUpdate();
 
-                // sanity check / debug
-                System.out.println("inside of game create");
-                System.out.println(statement);
-
                 // now retrieve the gameID we just made
                 try (var resultSet = preparedStatement.getGeneratedKeys()) {
                     if (resultSet.next()) {
-                        int generatedGameID = resultSet.getInt(1);
-                        System.out.println("✅ Game created with auto-incremented ID: " + generatedGameID);
                         return resultSet.getInt(1);  // return auto incremented gameID
                     }
                 }
@@ -93,11 +85,6 @@ public class SQLGameDao implements GameDAO{
                 String whiteUsername = resultSet.getString("whiteUsername");
                 String blackUsername = resultSet.getString("blackUsername");
                 String gameName = resultSet.getString("name");
-
-                System.out.println("Retrieved gameID: " + retrievedGameID);
-                System.out.println("White Player: " + whiteUsername);
-                System.out.println("Black Player: " + blackUsername);
-                System.out.println("Game Name: " + gameName);
 
                 // make sure game is a json
                 ChessGame chessGame = new Gson().fromJson(gameJson, ChessGame.class);
@@ -132,15 +119,9 @@ public class SQLGameDao implements GameDAO{
                     if (resultSet.next()) {
                         int retrievedGameID = resultSet.getInt("gameID");
                         String gameJson = resultSet.getString("game_json");
-                        String whiteUsername = resultSet.getString("whiteUsername");
                         String blackUsername = resultSet.getString("blackUsername");
+                        String whiteUsername = resultSet.getString("whiteUsername");
                         String gameName = resultSet.getString("name");
-
-                        System.out.println("inside of game find");
-                        System.out.println("Retrieved gameID: " + retrievedGameID);
-                        System.out.println("White Player: " + whiteUsername);
-                        System.out.println("Black Player: " + blackUsername);
-                        System.out.println("Game Name: " + gameName);
 
                         // turn chess json into a chess game object before returning
                         ChessGame chessGame = new Gson().fromJson(gameJson, ChessGame.class);

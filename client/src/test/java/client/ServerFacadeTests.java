@@ -2,7 +2,9 @@ package client;
 
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
+import requests.CreateRequest;
 import requests.RegisterRequest;
+import results.CreateResult;
 import results.SimpleResult;
 import server.Server;
 
@@ -40,6 +42,7 @@ public class ServerFacadeTests {
 
     @Test
     public void clear() {
+        // fill this in later after list games is working
         Assertions.assertTrue(true);
     }
 
@@ -65,5 +68,13 @@ public class ServerFacadeTests {
             assertTrue(message.contains("already taken"));
         }
     }
+
+    @Test
+    public void create() throws Exception {
+        CreateRequest request = new CreateRequest("testGame");
+        CreateResult result = facade.create(request);
+        assertNull(result.message());
+    }
+
 
 }

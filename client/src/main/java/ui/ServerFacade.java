@@ -6,8 +6,10 @@ import java.io.*;
 
 
 import exception.ResponseException;
+import requests.CreateRequest;
 import requests.JoinRequest;
 import requests.RegisterRequest;
+import results.CreateResult;
 import results.SimpleResult;
 
 import java.net.HttpURLConnection;
@@ -32,9 +34,9 @@ public class ServerFacade {
         return this.makeRequest("DELETE", path, null, SimpleResult.class);
     }
 
-    public SimpleResult join(JoinRequest request) {
-        // and so forth
-        return new SimpleResult(null);
+    public CreateResult create(CreateRequest request) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("POST", path, request, CreateResult.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {

@@ -21,9 +21,6 @@ public class SQLAuthDao implements AuthDAO {
             preparedStatement.setString(2, data.username());
 
             preparedStatement.executeUpdate();
-
-            // sanity check / debug
-            System.out.println("✅ Auth created for username: " + data.username());
         } catch (DataAccessException | SQLException e) {
             throw new SQLException("Error creating auth", e);
         }
@@ -41,9 +38,6 @@ public class SQLAuthDao implements AuthDAO {
 
             // execute the truncate statement
             preparedStatement.executeUpdate();
-
-            // sanity check / debug
-            System.out.println("✅ Auth table cleared");
 
         } catch (DataAccessException | SQLException e) {
             throw new SQLException("Error clearing auth table", e);
@@ -69,9 +63,6 @@ public class SQLAuthDao implements AuthDAO {
                 if (resultSet.next()) {
                     String retrievedAuthToken = resultSet.getString("authToken");
                     String retrievedUsername = resultSet.getString("username");
-
-                    System.out.println("✅ Auth found for username: " + retrievedUsername);
-
                     // return an AuthData object with the retrieved values
                     return new AuthData(retrievedAuthToken, retrievedUsername);
                 }
@@ -128,8 +119,6 @@ public class SQLAuthDao implements AuthDAO {
             while (resultSet.next()) {
                 String retrievedAuthToken = resultSet.getString("authToken");
                 String retrievedUsername = resultSet.getString("username");
-
-                System.out.println("✅ Retrieved auth for username: " + retrievedUsername);
 
                 // create a new AuthData object and add it to the list
                 authList.add(new AuthData(retrievedAuthToken, retrievedUsername));
