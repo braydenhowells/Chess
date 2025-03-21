@@ -43,7 +43,7 @@ public class ServerFacadeTests {
 
     @Test
     public void clear() {
-        // fill this in later after list games is working
+        // fill this in later after list games is working. I think we good on it tho
         Assertions.assertTrue(true);
     }
 
@@ -73,11 +73,20 @@ public class ServerFacadeTests {
         // register to get an auth token
         RegisterRequest rreq = new RegisterRequest("player1", "password", "p1@email.com");
         facade.register(rreq);
-
         CreateRequest creq = new CreateRequest("testGame");
         CreateResult result = facade.create(creq);
         assertEquals("1", result.gameID());
+
+        CreateResult result2 = facade.create(creq);
+        assertEquals("2", result2.gameID());
     }
 
+    @Test
+    public void createFail() {
+        // try to create without getting an auth token
+        CreateRequest creq = new CreateRequest("testGame");
+        CreateResult result = facade.create(creq);
+        assertTrue(result.message().contains("bad request"));
+    }
 
 }
