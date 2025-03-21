@@ -1,12 +1,12 @@
 package client;
 
+import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import requests.RegisterRequest;
 import results.SimpleResult;
 import server.Server;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
@@ -28,8 +28,8 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    public void clearDb() {
-        // fill this with a clear
+    public void clearDb() throws Exception {
+        facade.clear();
     }
 
 
@@ -39,12 +39,31 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void clear() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
     void register() throws Exception {
-        // pasted from the md
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        SimpleResult result = facade.register(request);
+        assertNull(result.message());
+    }
+
+    @Test
+    void registerFail() throws Exception {
+        // register like normal
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
         SimpleResult result = facade.register(request);
         assertNull(result.message());
 
+        // now try to register again, should throw an error
+        try {
+            facade.register(request);
+        } catch (ResponseException e) {
+            String message = e.getMessage();
+            assertTrue(message.contains("already taken"));
+        }
     }
 
 }

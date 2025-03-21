@@ -27,6 +27,11 @@ public class ServerFacade {
         return this.makeRequest("POST", path, request, SimpleResult.class);
     }
 
+    public SimpleResult clear() throws ResponseException {
+        var path = "/db";
+        return this.makeRequest("DELETE", path, null, SimpleResult.class);
+    }
+
     public SimpleResult join(JoinRequest request) {
         // and so forth
         return new SimpleResult(null);

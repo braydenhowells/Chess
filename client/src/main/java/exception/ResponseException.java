@@ -8,11 +8,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResponseException extends Exception {
-  final private int statusCode;
+  private final int statusCode;
 
   public ResponseException(int statusCode, String message) {
     super(message);
     this.statusCode = statusCode;
+  }
+
+  public int StatusCode() {
+    return statusCode;
   }
 
   public String toJson() {
@@ -20,13 +24,24 @@ public class ResponseException extends Exception {
   }
 
   public static ResponseException fromJson(InputStream stream) {
-    var map = new Gson().fromJson(new InputStreamReader(stream), HashMap.class);
-    var status = ((Double)map.get("status")).intValue();
-    String message = map.get("message").toString();
-    return new ResponseException(status, message);
-  }
+    Map map = new Gson().fromJson(new InputStreamReader(stream), HashMap.class);
 
-  public int StatusCode() {
-    return statusCode;
+    // Debug (optional):
+    // System.out.println("Parsed error response: " + map);
+
+    // Safely get the status code
+    Object rawStatus = map.get("status");
+    int statusCode;
+    if (rawStatus instanceof Number) {
+      statusCode = ((Number) rawStatus).intValue();
+    } else {
+      statusCode = 500; // Default to 500 if missing or invalid
+    }
+
+    // Safely get the message
+    Object rawMessage = map.get("message");
+    String message = (rawMessage != null) ? rawMessage.toString() : "Unknown error occurred";
+
+    return new ResponseException(statusCode, message);
   }
 }
