@@ -130,6 +130,35 @@ public class ServerFacadeTests {
         assertNull(result2.authToken());
     }
 
+    @Test
+    public void list() {
+        // register to get an auth token
+        RegisterRequest rreq = new RegisterRequest("player", "password", "player@email.com");
+        facade.register(rreq);
+        CreateRequest creq = new CreateRequest("Game");
+        facade.create(creq);
+        facade.create(creq);
+        var result = facade.list();
+        assertEquals(2, result.games().size());
+    }
+
+    @Test
+    public void listFail() {
+        // register to get an auth token
+        RegisterRequest rreq = new RegisterRequest("player", "password", "player@email.com");
+        facade.register(rreq);
+        CreateRequest creq = new CreateRequest("Game");
+        facade.create(creq);
+        var result = facade.list();
+        // should be 1
+        assertNotEquals(2, result.games().size());
+        facade.create(creq);
+        facade.create(creq);
+        var result2 = facade.list();
+        // should be 3
+        assertNotEquals(2, result2.games().size());
+    }
+
 
 
 

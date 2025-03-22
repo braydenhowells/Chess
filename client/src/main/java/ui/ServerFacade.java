@@ -8,6 +8,7 @@ import java.io.*;
 import exception.ResponseException;
 import requests.*;
 import results.CreateResult;
+import results.ListResult;
 import results.LoginResult;
 import results.SimpleResult;
 
@@ -83,6 +84,17 @@ public class ServerFacade {
             return new CreateResult(null, e.getMessage());
         }
     }
+
+    public ListResult list() {
+        var path = "/game";
+        try {
+            return this.makeRequest("GET", path, null, ListResult.class);
+        } catch (ResponseException e) {
+            return new ListResult(e.getMessage(), null);
+        }
+    }
+
+
 
 
 
