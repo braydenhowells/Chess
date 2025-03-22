@@ -76,11 +76,9 @@ public class ServerFacadeTests {
     public void createFail() {
         // register like normal
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
-        LoginResult result = facade.register(request);
-        String auth = result.authToken();
+        facade.register(request);
 
         // use the token to logout
-        LogoutRequest lreq = new LogoutRequest(auth);
         facade.logout();
 
         // try to create now that we are logged out
@@ -93,7 +91,7 @@ public class ServerFacadeTests {
     public void logout() {
         // register like normal
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
-        LoginResult result = facade.register(request);
+        facade.register(request);
 
         // use the token to logout
         SimpleResult result2 = facade.logout();
@@ -119,7 +117,7 @@ public class ServerFacadeTests {
     void login() {
         // register, then logout
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
-        var result = facade.register(request);
+        facade.register(request);
         facade.logout();
         // now try to log in
         var result2 = facade.login(new LoginRequest("player1", "password"));
