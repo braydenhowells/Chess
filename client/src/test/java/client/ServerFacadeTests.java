@@ -116,6 +116,22 @@ public class ServerFacadeTests {
         assertEquals("player1", result2.username());
     }
 
+    @Test
+    void loginFail() {
+        // register, then logout
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        var result = facade.register(request);
+        facade.logout(new LogoutRequest(result.authToken()));
+        // now try to log in
+        var result2 = facade.login(new LoginRequest("player1", "password_but_it_is_wrong"));
+        // make sure we do not get a login
+        assertTrue(result2.message().contains("Error"));
+        assertNull(result2.username());
+        assertNull(result2.authToken());
+    }
+
+
+
 
 
 
