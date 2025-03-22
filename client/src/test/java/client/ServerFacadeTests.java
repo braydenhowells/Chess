@@ -3,6 +3,7 @@ package client;
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import requests.CreateRequest;
+import requests.LoginRequest;
 import requests.LogoutRequest;
 import requests.RegisterRequest;
 import results.CreateResult;
@@ -101,6 +102,18 @@ public class ServerFacadeTests {
         LogoutRequest lreq = new LogoutRequest(auth);
         SimpleResult result2 = facade.logout(lreq);
         assertNull(result2.message());
+    }
+
+    @Test
+    void login() {
+        // register, then logout
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        var result = facade.register(request);
+        facade.logout(new LogoutRequest(result.authToken()));
+        // now try to log in
+        var result2 = facade.login(new LoginRequest("player1", "password"));
+        // see if it worked
+        assertEquals("player1", result2.username());
     }
 
 

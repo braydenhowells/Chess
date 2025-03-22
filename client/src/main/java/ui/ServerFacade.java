@@ -6,10 +6,7 @@ import java.io.*;
 
 
 import exception.ResponseException;
-import requests.CreateRequest;
-import requests.JoinRequest;
-import requests.LogoutRequest;
-import requests.RegisterRequest;
+import requests.*;
 import results.CreateResult;
 import results.LoginResult;
 import results.SimpleResult;
@@ -40,7 +37,7 @@ public class ServerFacade {
         }
     }
 
-    // logout prolly
+
     public SimpleResult logout(LogoutRequest request) {
         var path = "/session";
         try {
@@ -54,7 +51,21 @@ public class ServerFacade {
         }
     }
 
-    // login
+
+    public LoginResult login(LoginRequest request) {
+        var path = "/session";
+
+        try {
+            var result = this.makeRequest("POST", path, request, LoginResult.class);
+            // snag auth token for the future
+            authToken = result.authToken();
+            return result;
+        }
+        catch(ResponseException e) {
+            return new LoginResult(e.getMessage(), null, null);
+        }
+    }
+
 
     public SimpleResult clear() throws ResponseException {
         var path = "/db";
