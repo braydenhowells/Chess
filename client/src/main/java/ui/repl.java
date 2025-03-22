@@ -3,14 +3,14 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class repl {
-    private preLoginClient client = null;
+    private final preLoginClient client;
 
     public repl(preLoginClient client) {
         this.client = client;
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to the pet store. Sign in to start.");
+        System.out.println("\uD83D\uDE08 Welcome to chess, boyo.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);

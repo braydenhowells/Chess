@@ -13,8 +13,14 @@ public class preLoginClient {
     }
 
     public String help() {
-        return "help text pre login";
+        return """
+        register <USERNAME> <PASSWORD> <EMAIL> - to create an account AND login
+        login <USERNAME> <PASSWORD>            - to play chess
+        quit                                   - playing chess
+        help                                   - with possible commands
+        """;
     }
+
 
     public String eval(String input) {
         var tokens = input.toLowerCase().split(" ");
