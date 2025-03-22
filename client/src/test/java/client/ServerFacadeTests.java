@@ -1,13 +1,11 @@
 package client;
 
-import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import requests.*;
 import results.CreateResult;
 import results.LoginResult;
 import results.SimpleResult;
 import server.Server;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -30,20 +28,14 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    public void clearDb() throws Exception {
+    public void clearDb() {
         facade.clear();
-    }
-
-
-    @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
     }
 
     @Test
     public void clear() {
-        // fill this in later after list games is working. I think we good on it tho
-        Assertions.assertTrue(true);
+        var result = facade.clear();
+        assertNull(result.message());
     }
 
     @Test
@@ -82,10 +74,19 @@ public class ServerFacadeTests {
 
     @Test
     public void createFail() {
-        // try to create without getting an auth token
+        // register like normal
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        LoginResult result = facade.register(request);
+        String auth = result.authToken();
+
+        // use the token to logout
+        LogoutRequest lreq = new LogoutRequest(auth);
+        facade.logout(lreq);
+
+        // try to create now that we are logged out
         CreateRequest creq = new CreateRequest("testGame");
-        CreateResult result = facade.create(creq);
-        assertTrue(result.message().contains("bad request"));
+        CreateResult result2 = facade.create(creq);
+        assertTrue(result2.message().contains("bad request"));
     }
 
     @Test
@@ -95,7 +96,7 @@ public class ServerFacadeTests {
         LoginResult result = facade.register(request);
         String auth = result.authToken();
 
-        // try to create without getting an auth token
+        // use the token to logout
         LogoutRequest lreq = new LogoutRequest(auth);
         SimpleResult result2 = facade.logout(lreq);
         assertNull(result2.message());
@@ -200,11 +201,5 @@ public class ServerFacadeTests {
         String blackUsername = result4.games().getFirst().blackUsername();
         assertNull(blackUsername);
     }
-
-
-
-
-
-
 
 }
