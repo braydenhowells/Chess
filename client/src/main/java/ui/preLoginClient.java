@@ -1,12 +1,13 @@
 package ui;
 
 
+import requests.RegisterRequest;
+import results.LoginResult;
+
 import java.util.Arrays;
 
 public class preLoginClient {
-    private String currentUser = null;
     private final ServerFacade facade;
-    private State state = State.SIGNEDOUT;
 
     public preLoginClient(ServerFacade facade) {
         this.facade = facade;
@@ -40,7 +41,19 @@ public class preLoginClient {
     }
 
     public String register(String... params) {
-        return "register";
+        if (params.length == 3) {
+            RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
+            System.out.println(request);
+            LoginResult result = facade.register(request);
+            String username = result.username();
+            return "Good job registering, " + username + "!";
+        }
+        else if (params.length < 3) {
+            return "Unable to register. Not enough parameters entered.";
+        }
+        else {
+            return "Unable to register. Too many parameters entered.";
+        }
     }
 
 }

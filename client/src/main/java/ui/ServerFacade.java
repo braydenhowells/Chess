@@ -139,6 +139,7 @@ public class ServerFacade {
         }
         catch (Exception e) {
             System.out.println("uh oh, an error occurred in the makeRequest method");
+            e.printStackTrace();
             throw new ResponseException(500, e.getMessage());
         }
     }
@@ -148,6 +149,7 @@ public class ServerFacade {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
+            System.out.println("JSON we will send: " + reqData);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());
             }
