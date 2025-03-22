@@ -148,7 +148,7 @@ public class MasterHandler {
         GameData gameData = gameService.findGame(jreq.gameID());
         String color = jreq.playerColor();
 
-        SimpleResult result = gameService.join(gameData,color, req.headers("authorization"), jreq);
+        SimpleResult result = gameService.join(gameData, color, req.headers("authorization"), jreq);
 
         // success
         return formatGson(res, result);

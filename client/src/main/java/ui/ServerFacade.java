@@ -94,6 +94,17 @@ public class ServerFacade {
         }
     }
 
+    public SimpleResult join(JoinRequest request) {
+        var path = "/game";
+        try {
+            return this.makeRequest("PUT", path, request, SimpleResult.class);
+        } catch (ResponseException e) {
+            return new SimpleResult(e.getMessage());
+        }
+    }
+
+
+
 
 
 

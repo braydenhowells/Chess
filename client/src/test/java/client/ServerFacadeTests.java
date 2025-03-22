@@ -2,10 +2,7 @@ package client;
 
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
-import requests.CreateRequest;
-import requests.LoginRequest;
-import requests.LogoutRequest;
-import requests.RegisterRequest;
+import requests.*;
 import results.CreateResult;
 import results.LoginResult;
 import results.SimpleResult;
@@ -157,6 +154,51 @@ public class ServerFacadeTests {
         var result2 = facade.list();
         // should be 3
         assertNotEquals(2, result2.games().size());
+    }
+
+
+    @Test
+    public void join() {
+        // register to set up our player
+        RegisterRequest rreq = new RegisterRequest("player", "password", "player@email.com");
+        facade.register(rreq);
+        // make a game
+        CreateRequest creq = new CreateRequest("GamerzBeLike");
+        facade.create(creq);
+        // snag the id from the game
+        var result = facade.list();
+        String gameID = Integer.toString(result.games().getFirst().gameID());
+        // try to join the game
+        var result2 = facade.join(new JoinRequest("BLACK", gameID));
+        assertNull(result2.message());
+        var result3 = facade.list();
+        String blackUsername = result3.games().getFirst().blackUsername();
+        assertEquals("player", blackUsername);
+    }
+
+    @Test
+    public void joinFail() {
+        // register to set up our player
+        RegisterRequest rreq = new RegisterRequest("player", "password", "player@email.com");
+        facade.register(rreq);
+        // make a game
+        CreateRequest creq = new CreateRequest("GamerzBeLike");
+        facade.create(creq);
+        // use created game id for join
+        var result = facade.list();
+        String gameID = Integer.toString(result.games().getFirst().gameID());
+        // try to join the game with bad color
+        var result2 = facade.join(new JoinRequest("Rawr XD", gameID));
+        // make sure we get an error
+        assertTrue(result2.message().contains("Error"));
+        // try to join with bad game ID
+        var result3 = facade.join(new JoinRequest("WHITE", "69"));
+        // make sure we get an error
+        assertTrue(result3.message().contains("Error"));
+        // we should not be in this game
+        var result4 = facade.list();
+        String blackUsername = result4.games().getFirst().blackUsername();
+        assertNull(blackUsername);
     }
 
 
