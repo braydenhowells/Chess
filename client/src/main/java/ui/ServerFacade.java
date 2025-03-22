@@ -39,10 +39,10 @@ public class ServerFacade {
     }
 
 
-    public SimpleResult logout(LogoutRequest request) {
+    public SimpleResult logout() {
         var path = "/session";
         try {
-            var result = this.makeRequest("DELETE", path, request, SimpleResult.class);
+            var result = this.makeRequest("DELETE", path, null, SimpleResult.class);
             // reset auth token since we are logged out
             authToken = "";
             return result;

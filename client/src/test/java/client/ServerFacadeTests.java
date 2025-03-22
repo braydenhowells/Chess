@@ -81,7 +81,7 @@ public class ServerFacadeTests {
 
         // use the token to logout
         LogoutRequest lreq = new LogoutRequest(auth);
-        facade.logout(lreq);
+        facade.logout();
 
         // try to create now that we are logged out
         CreateRequest creq = new CreateRequest("testGame");
@@ -94,20 +94,33 @@ public class ServerFacadeTests {
         // register like normal
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
         LoginResult result = facade.register(request);
-        String auth = result.authToken();
 
         // use the token to logout
-        LogoutRequest lreq = new LogoutRequest(auth);
-        SimpleResult result2 = facade.logout(lreq);
+        SimpleResult result2 = facade.logout();
         assertNull(result2.message());
     }
+
+    @Test
+    public void logoutFail() {
+        // register like normal
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        facade.register(request);
+        // logout
+        facade.logout();
+
+        // try to log out without a token
+        SimpleResult result2 = facade.logout();
+        assertTrue(result2.message().contains("Error"));
+    }
+
+
 
     @Test
     void login() {
         // register, then logout
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
         var result = facade.register(request);
-        facade.logout(new LogoutRequest(result.authToken()));
+        facade.logout();
         // now try to log in
         var result2 = facade.login(new LoginRequest("player1", "password"));
         // see if it worked
@@ -118,8 +131,8 @@ public class ServerFacadeTests {
     void loginFail() {
         // register, then logout
         RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
-        var result = facade.register(request);
-        facade.logout(new LogoutRequest(result.authToken()));
+        facade.register(request);
+        facade.logout();
         // now try to log in
         var result2 = facade.login(new LoginRequest("player1", "password_but_it_is_wrong"));
         // make sure we do not get a login
