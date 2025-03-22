@@ -54,7 +54,6 @@ public class ServerFacade {
 
     public LoginResult login(LoginRequest request) {
         var path = "/session";
-
         try {
             var result = this.makeRequest("POST", path, request, LoginResult.class);
             // snag auth token for the future
@@ -67,9 +66,13 @@ public class ServerFacade {
     }
 
 
-    public SimpleResult clear() throws ResponseException {
+    public SimpleResult clear() {
         var path = "/db";
-        return this.makeRequest("DELETE", path, null, SimpleResult.class);
+        try {
+            return this.makeRequest("DELETE", path, null, SimpleResult.class);
+        } catch (ResponseException e) {
+            return new SimpleResult("Attempting to clear the database resulted in an error.");
+        }
     }
 
     public CreateResult create(CreateRequest request) {
