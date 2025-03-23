@@ -1,37 +1,37 @@
 package ui;
+
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class repl {
-    private final preLoginClient client;
+    private ClientMode mode;
 
-    public repl(preLoginClient client) {
-        this.client = client;
+    public repl(ClientMode startingMode) {
+        this.mode = startingMode;
     }
 
     public void run() {
-        System.out.println("\uD83D\uDE08 Welcome to chess, boyo.");
-        System.out.print(client.help());
-
         Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("Thanks for playing!")) {
+
+        while (true) {
             printPrompt();
             String line = scanner.nextLine();
 
             try {
-                result = client.eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
+                ClientMode next = mode.eval(line);
+                if (next == null) {
+                    break;
+                }
+                mode = next;
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+                System.out.print(e.getMessage());
             }
         }
-        System.out.println();
+
+        System.out.println("\nGoodbye!");
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_BG_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_BG_COLOR + ">>> " );
     }
-
 }
