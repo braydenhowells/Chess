@@ -148,37 +148,60 @@ public class PostLoginMode implements ClientMode {
             System.out.println("Usage: join <ID> <color>");
             return this;
         }
+
         // make sure ID is valid
         if (!isNumber(params[0])) {
             System.out.println("Unable to join game. Game ID must be a number.");
             System.out.println("Usage: list");
             return this;
         }
-        if (Integer.parseInt(params[0]) < 1) {
+
+        int displayGameID = Integer.parseInt(params[0]);
+        if (displayGameID < 1) {
             System.out.println("Unable to join game. Game ID must be positive.");
             System.out.println("Usage: join <ID> <color>");
             return this;
         }
-        if (Integer.parseInt(params[0]) > (currentGamesList.size())) {
+        if (displayGameID > currentGamesList.size()) {
             System.out.println("Unable to join game. Game ID does not match any existing games.");
             System.out.println("Usage: list");
             return this;
         }
-        // try black and white join
-        String uC = params[1];
-        String gameID = String.valueOf(Integer.parseInt(params[0]) - 1);
-        int intGameID = Integer.parseInt(params[0]) - 1;
-        String gameName = currentGamesList.get(intGameID).gameName();
 
+        // grab game info
+        int index = displayGameID - 1;
+        GameData game = currentGamesList.get(index);
+        String gameName = game.gameName();
+        String dbGameID = String.valueOf(game.gameID());
+        String uC = params[1];
+
+        // prevent joining if user is already in the game
+        if (username.equalsIgnoreCase(game.whiteUsername()) || username.equalsIgnoreCase(game.blackUsername())) {
+            System.out.println("Unable to join. You are already in this game.");
+            System.out.println("Usage: list");
+            return this;
+        }
+
+        // prevent joining if the chosen color is taken
+        if (uC.equalsIgnoreCase("white") && game.whiteUsername() != null) {
+            System.out.println("Unable to join. White is already taken.");
+            System.out.println("Usage: list");
+            return this;
+        }
+        if (uC.equalsIgnoreCase("black") && game.blackUsername() != null) {
+            System.out.println("Unable to join. Black is already taken.");
+            System.out.println("Usage: list");
+            return this;
+        }
+
+        // valid join
         if (uC.equalsIgnoreCase("black")) {
-            facade.join(new JoinRequest("BLACK", gameID));
-            return new GameMode(this.facade, this.username, gameID, gameName, "BLACK");
-        }
-        else if (uC.equalsIgnoreCase("white")) {
-            facade.join(new JoinRequest("WHITE", gameID));
-            return new GameMode(this.facade, this.username, gameID, gameName, "WHITE");
-        }
-        else {
+            facade.join(new JoinRequest("BLACK", dbGameID));
+            return new GameMode(this.facade, this.username, dbGameID, gameName, "BLACK");
+        } else if (uC.equalsIgnoreCase("white")) {
+            facade.join(new JoinRequest("WHITE", dbGameID));
+            return new GameMode(this.facade, this.username, dbGameID, gameName, "WHITE");
+        } else {
             String helpText = String.format("Unable to join game. Color must be either %sblack%s or %swhite%s.",
                     SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
                     SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE
@@ -188,6 +211,7 @@ public class PostLoginMode implements ClientMode {
             return this;
         }
     }
+
 
     // helper for join. makes sure the game ID from user is a number
     private boolean isNumber(String str) {
