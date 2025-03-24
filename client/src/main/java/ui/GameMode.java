@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessGame;
+
 import static ui.EscapeSequences.*;
 
 public class GameMode implements ClientMode {
@@ -8,13 +10,20 @@ public class GameMode implements ClientMode {
     private final String gameID; // this will make phase 6 easier
     private final String playerColor;
     private final String gameName;
+    private final ChessGame game;
 
-    public GameMode(ServerFacade facade, String username, String gameID, String gameName, String playerColor) {
+    public GameMode(ServerFacade facade, String username, String gameID, String gameName, String playerColor, ChessGame game) {
         this.facade = facade;
         this.username = username;
         this.gameID = gameID;
         this.playerColor = playerColor.toUpperCase();
         this.gameName = gameName;
+        this.game = game;
+        DrawBoard picasso = new DrawBoard(this.game, true);
+        picasso.draw();
+        DrawBoard michelangelo = new DrawBoard(this.game, false);
+        michelangelo.draw();
+
         System.out.println("\uD83C\uDFC1 " + username + ", you have joined game \"" + gameName + "\" as " + this.playerColor + ".");
         System.out.println(help());
     }
@@ -48,23 +57,23 @@ public class GameMode implements ClientMode {
             case "help":
                 System.out.println(help());
                 return this;
+
             case "redraw":
-                System.out.println("Redrawing the board... (dakine)");
+                System.out.println("Redrawing the board...");
+                new DrawBoard(game, playerColor.equalsIgnoreCase("WHITE")).draw();
                 return this;
+
             case "leave":
                 return new PostLoginMode(this.facade, this.username);
+
             case "quit":
                 System.out.println("Exiting the game. Goodbye!");
                 return null;
+
             default:
                 System.out.println("Unknown in-game command: " + cmd);
                 System.out.println("Type 'help' to see available commands.");
                 return this;
         }
     }
-
-
-
-
-
 }

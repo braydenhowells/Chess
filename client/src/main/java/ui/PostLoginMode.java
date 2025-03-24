@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import model.GameData;
 import requests.CreateRequest;
 import requests.JoinRequest;
@@ -170,25 +171,26 @@ public class PostLoginMode implements ClientMode {
 
         // grab game info
         int index = displayGameID - 1;
-        GameData game = currentGamesList.get(index);
-        String gameName = game.gameName();
-        String dbGameID = String.valueOf(game.gameID());
+        GameData gameData = currentGamesList.get(index);
+        ChessGame game = gameData.game();
+        String gameName = gameData.gameName();
+        String dbGameID = String.valueOf(gameData.gameID());
         String uC = params[1];
 
         // prevent joining if user is already in the game
-        if (username.equalsIgnoreCase(game.whiteUsername()) || username.equalsIgnoreCase(game.blackUsername())) {
+        if (username.equalsIgnoreCase(gameData.whiteUsername()) || username.equalsIgnoreCase(gameData.blackUsername())) {
             System.out.println("Unable to join. You are already in this game.");
             System.out.println("Usage: list");
             return this;
         }
 
         // prevent joining if the chosen color is taken
-        if (uC.equalsIgnoreCase("white") && game.whiteUsername() != null) {
+        if (uC.equalsIgnoreCase("white") && gameData.whiteUsername() != null) {
             System.out.println("Unable to join. White is already taken.");
             System.out.println("Usage: list");
             return this;
         }
-        if (uC.equalsIgnoreCase("black") && game.blackUsername() != null) {
+        if (uC.equalsIgnoreCase("black") && gameData.blackUsername() != null) {
             System.out.println("Unable to join. Black is already taken.");
             System.out.println("Usage: list");
             return this;
@@ -197,10 +199,10 @@ public class PostLoginMode implements ClientMode {
         // valid join
         if (uC.equalsIgnoreCase("black")) {
             facade.join(new JoinRequest("BLACK", dbGameID));
-            return new GameMode(this.facade, this.username, dbGameID, gameName, "BLACK");
+            return new GameMode(this.facade, this.username, dbGameID, gameName, "BLACK", game);
         } else if (uC.equalsIgnoreCase("white")) {
             facade.join(new JoinRequest("WHITE", dbGameID));
-            return new GameMode(this.facade, this.username, dbGameID, gameName, "WHITE");
+            return new GameMode(this.facade, this.username, dbGameID, gameName, "WHITE", game);
         } else {
             String helpText = String.format("Unable to join game. Color must be either %sblack%s or %swhite%s.",
                     SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
