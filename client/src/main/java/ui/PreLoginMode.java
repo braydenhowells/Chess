@@ -6,6 +6,9 @@ import results.LoginResult;
 
 import java.util.Arrays;
 
+import static ui.EscapeSequences.RESET_TEXT_UNDERLINE;
+import static ui.EscapeSequences.SET_TEXT_UNDERLINE;
+
 public class PreLoginMode implements ClientMode {
     private final ServerFacade facade;
 
@@ -18,13 +21,18 @@ public class PreLoginMode implements ClientMode {
 
     @Override
     public String help() {
-        return """
-        Available commands:
-        register <USERNAME> <PASSWORD> <EMAIL> - to create an account AND login
-        login <USERNAME> <PASSWORD>            - to play chess
-        quit                                   - playing chess
-        help                                   - with possible commands
-        """;
+        return String.format("""
+            Available commands:
+            register <USERNAME> <PASSWORD> <EMAIL> - %sto create an account AND login%s
+            login <USERNAME> <PASSWORD>            - %sto play chess%s
+            quit                                   - %splaying chess%s
+            help                                   - %swith possible commands%s
+            """,
+                SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
+                SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
+                SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
+                SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE
+        );
     }
 
     @Override
@@ -56,7 +64,7 @@ public class PreLoginMode implements ClientMode {
                 System.out.println("Usage: login <username> <password>");
                 return this;
             }
-            System.out.println("Welcome back, " + result.username() + "!");
+            System.out.println("Welcome back, " + result.username() + "! \uD83D\uDE0E");
             return new PostLoginMode(facade, result.username());
         } else if (params.length < 2) {
             System.out.println("Unable to login. Not enough parameters entered.");
@@ -81,7 +89,7 @@ public class PreLoginMode implements ClientMode {
                 return this;
             }
 
-            System.out.println("Welcome, " + result.username() + "! You are now logged in.");
+            System.out.println("Welcome, " + result.username() + "! You are now logged in. \uD83D\uDE0E");
             return new PostLoginMode(facade, result.username());
         } else if (params.length < 3) {
             System.out.println("Unable to register. Not enough parameters entered.");
