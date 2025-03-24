@@ -151,7 +151,7 @@ public class PostLoginMode implements ClientMode {
         // make sure ID is valid
         if (!isNumber(params[0])) {
             System.out.println("Unable to join game. Game ID must be a number.");
-            System.out.println("Usage: join <ID> <color>");
+            System.out.println("Usage: list");
             return this;
         }
         if (Integer.parseInt(params[0]) < 1) {
@@ -161,18 +161,22 @@ public class PostLoginMode implements ClientMode {
         }
         if (Integer.parseInt(params[0]) > (currentGamesList.size())) {
             System.out.println("Unable to join game. Game ID does not match any existing games.");
-            System.out.println("Usage: join <ID> <color>");
+            System.out.println("Usage: list");
             return this;
         }
         // try black and white join
         String uC = params[1];
         String gameID = String.valueOf(Integer.parseInt(params[0]) - 1);
+        int intGameID = Integer.parseInt(params[0]) - 1;
+        String gameName = currentGamesList.get(intGameID).gameName();
+
         if (uC.equalsIgnoreCase("black")) {
             facade.join(new JoinRequest("BLACK", gameID));
-
+            return new GameMode(this.facade, this.username, gameID, gameName, "BLACK");
         }
         else if (uC.equalsIgnoreCase("white")) {
             facade.join(new JoinRequest("WHITE", gameID));
+            return new GameMode(this.facade, this.username, gameID, gameName, "WHITE");
         }
         else {
             String helpText = String.format("Unable to join game. Color must be either %sblack%s or %swhite%s.",
@@ -183,7 +187,6 @@ public class PostLoginMode implements ClientMode {
             System.out.println("Usage: join <ID> <color>");
             return this;
         }
-        return this;
     }
 
     // helper for join. makes sure the game ID from user is a number
