@@ -3,10 +3,10 @@ package ui;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
-public class repl {
+public class Repl {
     private ClientMode mode;
 
-    public repl(ClientMode startingMode) {
+    public Repl(ClientMode startingMode) {
         this.mode = startingMode;
     }
 

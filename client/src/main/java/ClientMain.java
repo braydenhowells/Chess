@@ -7,7 +7,7 @@ public class ClientMain {
         // repl(mode(facade))
         var facade = new ServerFacade("http://localhost:8080");
         var startingMode = new PreLoginMode(facade); // eventually we will switch this mode
-        var repl = new repl(startingMode);
+        var repl = new Repl(startingMode);
         repl.run();
     }
 }

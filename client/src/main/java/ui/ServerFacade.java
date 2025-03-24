@@ -90,7 +90,7 @@ public class ServerFacade {
         try {
             return this.makeRequest("GET", path, null, ListResult.class);
         } catch (ResponseException e) {
-            return new ListResult(e.getMessage(), null);
+            return new ListResult(e.getMessage() + e.statusCode(), null);
         }
     }
 
