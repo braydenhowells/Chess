@@ -31,6 +31,8 @@ public class PreLoginMode implements ClientMode {
     public ClientMode eval(String input) {
         var tokens = input.split(" ");
         var cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
+        // the ? is a way of saying "value if true : value if false"
+        // this allows us to go to help if the command is empty
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
         switch (cmd) {
