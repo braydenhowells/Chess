@@ -32,7 +32,7 @@ public class PostLoginMode implements ClientMode {
             join <ID> <color> - %sto join a game%s
             observe <ID>      - %sa game%s
             logout            - %sreturn to login screen%s
-            quit              - %sexit the game%s
+            quit              - %sexit the program%s
             help              - %sshow commands%s
             """,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
@@ -55,12 +55,14 @@ public class PostLoginMode implements ClientMode {
         switch (cmd) {
             case "logout":
                 facade.logout();
-                System.out.println("Goodbye, " + username + "!");
+                System.out.println("Goodbye, " + username + "! \u270C\uFE0F");
                 return new PreLoginMode(facade);
             case "join":
                 return join(params);
+            case "observe":
+                return observe(params);
             case "list":
-                return list();
+                return list(params);
             case "create":
                 return create(params);
             case "quit":
@@ -93,7 +95,12 @@ public class PostLoginMode implements ClientMode {
         return this;
     }
 
-    private ClientMode list() {
+    private ClientMode list(String... params) {
+        if (params.length!= 0) {
+            System.out.println("Unable to list games. Too many parameters entered.");
+            System.out.println("Usage: list");
+            return this;
+        }
         var result = facade.list();
         if (result.message() != null && result.message().contains("Error")) {
             System.out.println("Failed to list games. " + result.message());
@@ -137,6 +144,54 @@ public class PostLoginMode implements ClientMode {
         }
     }
 
+    private ClientMode observe(String... params) {
+        // check params
+        if (params.length > 1) {
+            System.out.println("Unable to observe game. Too many parameters entered.");
+            System.out.println("Usage: observe <ID>");
+            return this;
+        }
+        if (params.length < 1) {
+            System.out.println("Unable to observe game. Not enough parameters entered.");
+            System.out.println("Usage: observe <ID>");
+            return this;
+        }
+
+        // make sure ID is valid
+        if (!isNumber(params[0])) {
+            System.out.println("Unable to observe game. Game ID must be a number.");
+            System.out.println("Usage: observe <ID>");
+            return this;
+        }
+
+        int displayGameID = Integer.parseInt(params[0]);
+        if (displayGameID < 1) {
+            System.out.println("Unable to observe game. Game ID must be positive.");
+            System.out.println("Usage: observe <ID>");
+            return this;
+        }
+        if (displayGameID > currentGamesList.size()) {
+            System.out.println("Unable to observe game. Game ID does not match " +
+                    "any existing games.");
+            String suggestion = String.format("%sPlease try listing again.%s",
+                    SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE);
+            System.out.println(suggestion);
+            System.out.println("Usage: list");
+            return this;
+        }
+
+        // grab game info
+        int index = displayGameID - 1;
+        GameData gameData = currentGamesList.get(index);
+        ChessGame game = gameData.game();
+        String gameName = gameData.gameName();
+        String dbGameID = String.valueOf(gameData.gameID());
+
+        // enter observe mode
+        return new ObserveMode(this.facade, this.username, dbGameID, gameName,
+                gameData.whiteUsername(), gameData.blackUsername(), game);
+    }
+
     private ClientMode join(String... params) {
         // check params
         if (params.length > 2) {
@@ -164,7 +219,11 @@ public class PostLoginMode implements ClientMode {
             return this;
         }
         if (displayGameID > currentGamesList.size()) {
-            System.out.println("Unable to join game. Game ID does not match any existing games.");
+            System.out.println("Unable to join game. Game ID does not match " +
+                    "any existing games.");
+            String suggestion = String.format("%sPlease try listing again.%s",
+                    SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE);
+            System.out.println(suggestion);
             System.out.println("Usage: list");
             return this;
         }

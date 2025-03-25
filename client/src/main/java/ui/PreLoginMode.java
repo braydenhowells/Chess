@@ -14,9 +14,8 @@ public class PreLoginMode implements ClientMode {
 
     public PreLoginMode(ServerFacade facade) {
         this.facade = facade;
-        System.out.println("\uD83D\uDE0A Welcome to chess, hopefully it works!");
         System.out.println(help());
-        // these two^ will print every time we come back to preLoginMode
+        // this will print every time we come back to preLoginMode
     }
 
     @Override
@@ -25,7 +24,7 @@ public class PreLoginMode implements ClientMode {
             Available commands:
             register <USERNAME> <PASSWORD> <EMAIL> - %sto create an account AND login%s
             login <USERNAME> <PASSWORD>            - %sto play chess%s
-            quit                                   - %splaying chess%s
+            quit                                   - %sexit the program%s
             help                                   - %swith possible commands%s
             """,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
@@ -80,7 +79,6 @@ public class PreLoginMode implements ClientMode {
     private ClientMode register(String... params) {
         if (params.length == 3) {
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
-            System.out.println(request);
             LoginResult result = facade.register(request);
 
             if (result.username() == null || result.authToken() == null) {

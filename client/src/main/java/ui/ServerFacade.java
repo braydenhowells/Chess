@@ -115,7 +115,6 @@ public class ServerFacade {
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             // debug
-            System.out.println("sending " + method + " request to: " + serverUrl + path);
 
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -138,8 +137,6 @@ public class ServerFacade {
             throw e;
         }
         catch (Exception e) {
-            System.out.println("uh oh, an error occurred in the makeRequest method");
-            e.printStackTrace();
             throw new ResponseException(500, e.getMessage());
         }
     }
@@ -149,7 +146,6 @@ public class ServerFacade {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
-            System.out.println("JSON we will send: " + reqData);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());
             }
@@ -164,7 +160,6 @@ public class ServerFacade {
                     throw ResponseException.fromJson(respErr);
                 }
             }
-
             throw new ResponseException(status, "other failure: " + status);
         }
     }

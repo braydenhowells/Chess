@@ -59,8 +59,9 @@ public class GameMode implements ClientMode {
                 return this;
 
             case "redraw":
-                System.out.println("Redrawing the board...");
-                new DrawBoard(game, playerColor.equalsIgnoreCase("WHITE")).draw();
+                DrawBoard picasso = new DrawBoard(game, playerColor.equalsIgnoreCase("WHITE"));
+                // checks if player color is WHITE. if so, then sets whitePerspective as true
+                picasso.draw();
                 return this;
 
             case "leave":

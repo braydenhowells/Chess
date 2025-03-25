@@ -23,7 +23,8 @@ public class DrawBoard {
         // this makes switching between white and black views easier because:
         // the files are the same, but the ranks are flipped
         // keeping track of those makes the indexing much cleaner
-        char[] files = new char[]{'a','b','c','d','e','f','g','h'}; // files = columns |||
+        char[] files = whitePerspective? new char[]{'a','b','c','d','e','f','g','h'} : // files = columns |||
+                new char[]{'h','g','f','e','d','c','b','a'};
         int[] ranks = whitePerspective ? new int[]{8,7,6,5,4,3,2,1} : // ranks = rows ----
                 new int[]{1,2,3,4,5,6,7,8}; // reverse for black
 
@@ -65,7 +66,7 @@ public class DrawBoard {
                     // this adds A + 1 = A1 which has an odd value, means it is dark
                     // the next file is B1, which adds to be even, meaning it is light
 
-                    // setup the different colors and pieces and backgrounds, as applicable
+                    // set up the different colors and pieces and backgrounds, as applicable
                     String bgColor = isLightSquare ? SET_BG_COLOR_TAN : SET_BG_COLOR_GREEN_custom;
                     String symbol = getPieceSymbol(piece);
                     String textColor = getPieceColor(piece);
