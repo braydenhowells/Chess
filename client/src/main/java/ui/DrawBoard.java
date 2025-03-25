@@ -16,40 +16,61 @@ public class DrawBoard {
     }
 
     public void draw() {
+        // setup board and labels
         ChessBoard board = game.getBoard();
+        // below we will draw NOT according to the counter (row or col) in the loops,
+        // instead we will use RANKS and FILES to dictate the contents of a square
+        // this makes switching between white and black views easier because:
+        // the files are the same, but the ranks are flipped
+        // keeping track of those makes the indexing much cleaner
+        char[] files = new char[]{'a','b','c','d','e','f','g','h'}; // files = columns |||
+        int[] ranks = whitePerspective ? new int[]{8,7,6,5,4,3,2,1} : // ranks = rows ----
+                new int[]{1,2,3,4,5,6,7,8}; // reverse for black
 
-        // ranks = row ----
-        // files = column ||||
-        // reverse from white or black
-        char[] files = new char[]{'a','b','c','d','e','f','g','h'};
-        int[] ranks = whitePerspective ? new int[]{8,7,6,5,4,3,2,1} :
-                new int[]{1,2,3,4,5,6,7,8};
-
+        // loop over 10 x 10 grid
         for (int row = 0; row < 10; row++) {
-            for (int col = 0; col < 10; col++) {
+            if (row == 0 || row == 9) {
+                System.out.print("\u2009"); // 2009 is a thin space, aligns SO clean
+                // add thin space to front of first and last row
+            }
 
-                // Borders
+            for (int col = 0; col < 10; col++) {
+                //
                 if (row == 0 || row == 9) {
-                    // File labels (columns)
+                    // letters on border
                     if (col >= 1 && col <= 8) {
-                        System.out.print(SET_TEXT_COLOR_LIGHT_GREY + " " + files[col - 1] + " " + RESET_TEXT_COLOR);
+                        String label = String.format(" %s\u2003", files[col - 1]);
+                        System.out.print(SET_TEXT_COLOR_LIGHT_GREY + label + RESET_TEXT_COLOR);
                     } else {
                         System.out.print("   ");
                     }
                 } else if (col == 0 || col == 9) {
-                    // Rank labels (rows)
+                    // numbers on the border
                     System.out.print(SET_TEXT_COLOR_LIGHT_GREY + " " + ranks[row - 1] + " " + RESET_TEXT_COLOR);
                 } else {
-                    // Chessboard square
-                    int fileIndex = whitePerspective ? col - 1 : 8 - col;
-                    int rankIndex = whitePerspective ? 8 - row : row - 1;
-                    ChessPiece piece = board.getPiece(new ChessPosition(rankIndex + 1, fileIndex + 1));
+                    // inner chess board area
+
+                    // a few items for setting up the print:
+                    char fileChar = files[col - 1]; // grab the current letter from files list
+                    int fileIndex = fileChar - 'a'; // zero index the files by subtracting 97 (a) in ascii
+                    // this makes a = 0, b = 1, c = 2, and so forth
+                    // we will add 1 to this zero index when it is needed
+                    int rankIndex = ranks[row - 1]; // 1 index the ranks
+                    // if we are in row 2 of grid (aka top row of board) ^^ this will get rank 1
+
+                    // find out if we have a piece here
+                    ChessPiece piece = board.getPiece(new ChessPosition(rankIndex, fileIndex + 1));
+                    // get the background off the checkerboard patter
                     boolean isLightSquare = (rankIndex + fileIndex) % 2 == 0;
+                    // this adds A + 1 = A1 which has an odd value, means it is dark
+                    // the next file is B1, which adds to be even, meaning it is light
 
-                    String bgColor = isLightSquare ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BROWN;
+                    // setup the different colors and pieces and backgrounds, as applicable
+                    String bgColor = isLightSquare ? SET_BG_COLOR_TAN : SET_BG_COLOR_GREEN_custom;
                     String symbol = getPieceSymbol(piece);
+                    String textColor = getPieceColor(piece);
 
-                    System.out.print(bgColor + symbol + RESET_BG_COLOR);
+                    System.out.print(bgColor + textColor + symbol + RESET_TEXT_COLOR + RESET_BG_COLOR);
                 }
             }
             System.out.println();
@@ -58,26 +79,25 @@ public class DrawBoard {
 
 
     private String getPieceSymbol(ChessPiece piece) {
-        // see if there is a piece here
         if (piece == null) return EMPTY;
-        return switch (piece.getTeamColor()) {
-            case WHITE -> switch (piece.getPieceType()) {
-                case KING -> WHITE_KING;
-                case QUEEN -> WHITE_QUEEN;
-                case ROOK -> WHITE_ROOK;
-                case BISHOP -> WHITE_BISHOP;
-                case KNIGHT -> WHITE_KNIGHT;
-                case PAWN -> WHITE_PAWN;
-            };
-            case BLACK -> switch (piece.getPieceType()) {
-                case KING -> BLACK_KING;
-                case QUEEN -> BLACK_QUEEN;
-                case ROOK -> BLACK_ROOK;
-                case BISHOP -> BLACK_BISHOP;
-                case KNIGHT -> BLACK_KNIGHT;
-                case PAWN -> BLACK_PAWN;
-            };
+
+        return switch (piece.getPieceType()) {
+            case KING -> BLACK_KING;
+            case QUEEN -> BLACK_QUEEN;
+            case ROOK -> BLACK_ROOK;
+            case BISHOP -> BLACK_BISHOP;
+            case KNIGHT -> BLACK_KNIGHT;
+            case PAWN -> BLACK_PAWN;
         };
     }
+
+
+    private String getPieceColor(ChessPiece piece) {
+        if (piece == null) return ""; // No color for empty square
+        return (piece.getTeamColor() == ChessGame.TeamColor.BLACK)
+                ? SET_TEXT_COLOR_BLACK
+                : SET_TEXT_COLOR_WHITE;
+    }
+
 
 }
