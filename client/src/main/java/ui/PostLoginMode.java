@@ -67,6 +67,9 @@ public class PostLoginMode implements ClientMode {
                 return create(params);
             case "quit":
                 return null;
+            case "help":
+                System.out.println(help());
+                return this;
             default:
                 System.out.println("Command not recognized: " + cmd);
                 System.out.println(help());
