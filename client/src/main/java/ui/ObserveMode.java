@@ -1,6 +1,12 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -26,19 +32,21 @@ public class ObserveMode implements ClientMode {
         System.out.println("\uD83D\uDC40 Now observing game \"" + gameName + "\". " +
                 "Current players: ");
         printGameInfo();
-        new DrawBoard(game, true).draw(); // always draw from white's perspective
+        new DrawBoard(game, true).draw(null); // always draw from white's perspective
         System.out.println(help());
     }
 
     @Override
     public String help() {
         return String.format("""
-            Available commands:
-            redraw - %sredraws the chess board%s
-            leave  - %sreturn to the previous menu%s
-            help   - %sshow available commands%s
-            quit   - %sexit the program%s
-            """,
+        Available commands:
+        redraw             - %sredraws the chess board%s
+        leave              - %sreturn to the previous menu%s
+        help               - %sshow available commands%s
+        quit               - %sexit the program%s
+        highlight <POS>    - %shighlight legal moves for a piece%s
+        """,
+                SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
@@ -50,13 +58,14 @@ public class ObserveMode implements ClientMode {
     public ClientMode eval(String input) {
         var tokens = input.trim().split(" ");
         var cmd = tokens[0].toLowerCase();
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
         switch (cmd) {
             case "redraw":
                 System.out.println("\uD83D\uDC40 Still observing game \"" + gameName + "\". " +
                         "Current players: ");
                 printGameInfo();
-                new DrawBoard(game, true).draw(); // Always from white's perspective
+                new DrawBoard(game, true).draw(null); // Always from white's perspective
                 return this;
 
             case "leave":
@@ -65,6 +74,9 @@ public class ObserveMode implements ClientMode {
             case "quit":
                 System.out.println("Goodbye.");
                 return null;
+
+            case "highlight":
+                return highlight(params);
 
             case "help":
                 System.out.println(help());
@@ -76,6 +88,48 @@ public class ObserveMode implements ClientMode {
                 return this;
         }
     }
+
+    private ClientMode highlight(String... params) {
+        if (params.length != 1) {
+            System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
+            return this;
+        }
+
+        ChessPosition pos = formatToPosition(params[0]);
+        if (pos == null) {
+            System.out.println("Invalid position. Try something like 'highlight e2'.");
+            return this;
+        }
+
+        Collection<ChessMove> legalMoves = game.validMoves(pos);
+        Collection<ChessPosition> highlights = new ArrayList<>();
+        highlights.add(pos); // make sure we highlight our own position also
+
+        for (ChessMove move : legalMoves) {
+            highlights.add(move.getEndPosition());
+        }
+
+        new DrawBoard(game, true).draw(highlights);
+        return this;
+    }
+
+
+    private ChessPosition formatToPosition(String str) {
+        if (str.length() != 2) return null;
+
+        char file = Character.toLowerCase(str.charAt(0));
+        char rankChar = str.charAt(1);
+
+        if (file < 'a' || file > 'h' || rankChar < '1' || rankChar > '8') {
+            return null;
+        }
+
+        int col = file - 'a' + 1; // this returns it to 1 index
+        int row = Character.getNumericValue(rankChar);
+        return new ChessPosition(row, col);
+    }
+
+
 
     private void printGameInfo() {
         System.out.println("White: " + getPlayerOrEmpty(whiteUsername));

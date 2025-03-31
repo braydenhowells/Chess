@@ -4,6 +4,9 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+
+import java.util.Collection;
+
 import static ui.EscapeSequences.*;
 
 public class DrawBoard {
@@ -15,7 +18,7 @@ public class DrawBoard {
         this.whitePerspective = whitePerspective;
     }
 
-    public void draw() {
+    public void draw(Collection<ChessPosition> highlights) {
         // setup board and labels
         ChessBoard board = game.getBoard();
         // below we will draw NOT according to the counter (row or col) in the loops,
@@ -59,6 +62,9 @@ public class DrawBoard {
                     int rankIndex = ranks[row - 1]; // 1 index the ranks
                     // if we are in row 2 of grid (aka top row of board) ^^ this will get rank 1
 
+                    ChessPosition currentPos = new ChessPosition(rankIndex, fileIndex + 1);
+                    // used for highlighting
+
                     // find out if we have a piece here
                     ChessPiece piece = board.getPiece(new ChessPosition(rankIndex, fileIndex + 1));
                     // get the background off the checkerboard patter
@@ -66,8 +72,15 @@ public class DrawBoard {
                     // this adds A + 1 = A1 which has an odd value, means it is dark
                     // the next file is B1, which adds to be even, meaning it is light
 
-                    // set up the different colors and pieces and backgrounds, as applicable
-                    String bgColor = isLightSquare ? SET_BG_COLOR_TAN : SET_BG_COLOR_GREEN_custom;
+                    // determine background: regular or highlight
+                    String bgColor;
+                    if (highlights != null && highlights.contains(currentPos)) {
+                        bgColor = SET_BG_COLOR_YELLOW;
+                    } else {
+                        bgColor = isLightSquare ? SET_BG_COLOR_TAN : SET_BG_COLOR_GREEN_custom;
+                    }
+
+                    // set up the different colors and pieces, as applicable
                     String symbol = getPieceSymbol(piece);
                     String textColor = getPieceColor(piece);
 

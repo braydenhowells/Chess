@@ -104,6 +104,7 @@ public class PostLoginMode implements ClientMode {
             System.out.println("Usage: list");
             return this;
         }
+
         var result = facade.list();
         if (result.message() != null && result.message().contains("Error")) {
             System.out.println("Failed to list games. " + result.message());

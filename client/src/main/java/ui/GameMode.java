@@ -20,9 +20,9 @@ public class GameMode implements ClientMode {
         this.gameName = gameName;
         this.game = game;
         DrawBoard picasso = new DrawBoard(this.game, true);
-        picasso.draw();
+        picasso.draw(null);
         DrawBoard michelangelo = new DrawBoard(this.game, false);
-        michelangelo.draw();
+        michelangelo.draw(null);
 
         System.out.println("\uD83C\uDFC1 " + username + ", you have joined game \"" + gameName + "\" as " + this.playerColor + ".");
         System.out.println(help());
@@ -61,7 +61,7 @@ public class GameMode implements ClientMode {
             case "redraw":
                 DrawBoard picasso = new DrawBoard(game, playerColor.equalsIgnoreCase("WHITE"));
                 // checks if player color is WHITE. if so, then sets whitePerspective as true
-                picasso.draw();
+                picasso.draw(null);
                 return this;
 
             case "leave":
