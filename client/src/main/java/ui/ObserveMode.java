@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.util.ArrayList;
@@ -97,7 +98,16 @@ public class ObserveMode implements ClientMode {
 
         ChessPosition pos = formatToPosition(params[0]);
         if (pos == null) {
-            System.out.println("Invalid position. Try something like 'highlight e2'.");
+            System.out.println("Invalid position.");
+            System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
+
+            return this;
+        }
+
+        ChessPiece piece = game.getBoard().getPiece(pos);
+        if (piece == null) {
+            System.out.println("There is no piece at that position.");
+            System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
             return this;
         }
 

@@ -75,10 +75,12 @@ public class DrawBoard {
                     // determine background: regular or highlight
                     String bgColor;
                     if (highlights != null && highlights.contains(currentPos)) {
-                        bgColor = SET_BG_COLOR_YELLOW;
+                        bgColor = isLightSquare ? SET_BG_COLOR_YELLOW : SET_BG_COLOR_HIGHLIGHT_DARK;
                     } else {
                         bgColor = isLightSquare ? SET_BG_COLOR_TAN : SET_BG_COLOR_GREEN_custom;
                     }
+
+
 
                     // set up the different colors and pieces, as applicable
                     String symbol = getPieceSymbol(piece);
