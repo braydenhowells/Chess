@@ -70,7 +70,8 @@ public class GameMode implements ClientMode {
             case "quit":
                 System.out.println("Exiting the game. Goodbye!");
                 return null;
-
+            case "highlight":
+                // fill here with a similar func to observe mode
             default:
                 System.out.println("Unknown in-game command: " + cmd);
                 System.out.println("Type 'help' to see available commands.");
