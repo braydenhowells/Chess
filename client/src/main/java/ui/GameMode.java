@@ -2,6 +2,8 @@ package ui;
 
 import chess.ChessGame;
 
+import java.util.Arrays;
+
 import static ui.EscapeSequences.*;
 
 public class GameMode implements ClientMode {
@@ -11,12 +13,14 @@ public class GameMode implements ClientMode {
     private final String playerColor;
     private final String gameName;
     private final ChessGame game;
+    private final boolean whitePerspective;
 
     public GameMode(ServerFacade facade, String username, String gameID, String gameName, String playerColor, ChessGame game) {
         this.facade = facade;
         this.username = username;
         this.gameID = gameID;
         this.playerColor = playerColor.toUpperCase();
+        this.whitePerspective = playerColor.equalsIgnoreCase("WHITE");
         this.gameName = gameName;
         this.game = game;
         DrawBoard picasso = new DrawBoard(this.game, true);
@@ -50,8 +54,9 @@ public class GameMode implements ClientMode {
 
     @Override
     public ClientMode eval(String input) {
-        var tokens = input.split(" ");
-        var cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
+        var tokens = input.trim().split(" ");
+        var cmd = tokens[0].toLowerCase();
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
         switch (cmd) {
             case "help":
@@ -59,7 +64,7 @@ public class GameMode implements ClientMode {
                 return this;
 
             case "redraw":
-                DrawBoard picasso = new DrawBoard(game, playerColor.equalsIgnoreCase("WHITE"));
+                DrawBoard picasso = new DrawBoard(game, whitePerspective);
                 // checks if player color is WHITE. if so, then sets whitePerspective as true
                 picasso.draw(null);
                 return this;
@@ -71,11 +76,21 @@ public class GameMode implements ClientMode {
                 System.out.println("Exiting the game. Goodbye!");
                 return null;
             case "highlight":
-                // fill here with a similar func to observe mode
+                return highlight(params);
             default:
                 System.out.println("Unknown in-game command: " + cmd);
                 System.out.println("Type 'help' to see available commands.");
                 return this;
         }
+    }
+
+
+    private ClientMode highlight(String... params) {
+        if (params.length != 1) {
+            System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
+            return this;
+        }
+        // use the helper, shared for GameMode and ObserveMode
+        return HighlightHelper.highlight(params[0], this.game, this, whitePerspective);
     }
 }

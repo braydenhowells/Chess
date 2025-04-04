@@ -95,51 +95,9 @@ public class ObserveMode implements ClientMode {
             System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
             return this;
         }
-
-        ChessPosition pos = formatToPosition(params[0]);
-        if (pos == null) {
-            System.out.println("Invalid position.");
-            System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
-
-            return this;
-        }
-
-        ChessPiece piece = game.getBoard().getPiece(pos);
-        if (piece == null) {
-            System.out.println("There is no piece at that position.");
-            System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
-            return this;
-        }
-
-        Collection<ChessMove> legalMoves = game.validMoves(pos);
-        Collection<ChessPosition> highlights = new ArrayList<>();
-        highlights.add(pos); // make sure we highlight our own position also
-
-        for (ChessMove move : legalMoves) {
-            highlights.add(move.getEndPosition());
-        }
-
-        new DrawBoard(game, true).draw(highlights);
-        return this;
+        // use the helper, shared for GameMode and ObserveMode
+        return HighlightHelper.highlight(params[0], this.game, this, true);
     }
-
-
-    private ChessPosition formatToPosition(String str) {
-        if (str.length() != 2) return null;
-
-        char file = Character.toLowerCase(str.charAt(0));
-        char rankChar = str.charAt(1);
-
-        if (file < 'a' || file > 'h' || rankChar < '1' || rankChar > '8') {
-            return null;
-        }
-
-        int col = file - 'a' + 1; // this returns it to 1 index
-        int row = Character.getNumericValue(rankChar);
-        return new ChessPosition(row, col);
-    }
-
-
 
     private void printGameInfo() {
         System.out.println("White: " + getPlayerOrEmpty(whiteUsername));
