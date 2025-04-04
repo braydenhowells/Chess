@@ -23,10 +23,10 @@ public class GameMode implements ClientMode {
         this.whitePerspective = playerColor.equalsIgnoreCase("WHITE");
         this.gameName = gameName;
         this.game = game;
-        DrawBoard picasso = new DrawBoard(this.game, true);
+
+        // draw board on startup
+        DrawBoard picasso = new DrawBoard(this.game, whitePerspective);
         picasso.draw(null);
-        DrawBoard michelangelo = new DrawBoard(this.game, false);
-        michelangelo.draw(null);
 
         System.out.println("\uD83C\uDFC1 " + username + ", you have joined game \"" + gameName + "\" as " + this.playerColor + ".");
         System.out.println(help());
