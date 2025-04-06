@@ -1,4 +1,5 @@
-import ui.*;
+package ui;
+
 // we will basically use everything in ui folder
 
 public class ClientMain {

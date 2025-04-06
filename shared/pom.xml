@@ -44,7 +44,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        ServerMain
+                                        server.ServerMain
                                     </mainClass>
                                 </manifest>
                             </archive>
