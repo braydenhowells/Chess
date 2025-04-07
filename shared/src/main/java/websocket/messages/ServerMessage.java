@@ -12,7 +12,6 @@ import java.util.Objects;
  * - ERROR: includes an error message.
  * - NOTIFICATION: includes a simple message for the client.
  */
-
 public class ServerMessage {
 
     public enum ServerMessageType {
@@ -28,14 +27,6 @@ public class ServerMessage {
 
     public ServerMessage(ServerMessageType type) {
         this.serverMessageType = type;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 
     public ServerMessageType getServerMessageType() {
@@ -58,6 +49,14 @@ public class ServerMessage {
         this.game = game;
     }
 
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -65,11 +64,14 @@ public class ServerMessage {
         ServerMessage that = (ServerMessage) o;
         return getServerMessageType() == that.getServerMessageType() &&
                 Objects.equals(getMessage(), that.getMessage()) &&
-                Objects.equals(getGame(), that.getGame());
+                Objects.equals(getGame(), that.getGame()) &&
+                Objects.equals(getErrorMessage(), that.getErrorMessage());
     }
+
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServerMessageType(), getMessage(), getGame());
+        return Objects.hash(getServerMessageType(), getMessage(), getGame(), getErrorMessage());
     }
+
 }
