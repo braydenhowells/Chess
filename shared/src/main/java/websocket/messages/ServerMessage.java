@@ -24,9 +24,18 @@ public class ServerMessage {
     private ServerMessageType serverMessageType;
     private String message;
     private GameData game;
+    private String errorMessage;
 
     public ServerMessage(ServerMessageType type) {
         this.serverMessageType = type;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public ServerMessageType getServerMessageType() {

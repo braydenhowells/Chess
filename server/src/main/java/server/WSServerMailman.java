@@ -154,7 +154,7 @@ public class WSServerMailman {
 
     private void sendError(Session session, String errorText) {
         ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        msg.setMessage("error: " + errorText);
+        msg.setErrorMessage("error: " + errorText); // format to pass the test case
         sendMessage(session, msg);
     }
 }
