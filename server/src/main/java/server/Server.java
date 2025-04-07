@@ -40,6 +40,17 @@ public class Server {
 
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
+        AuthService authService = new AuthService(authDAO);
+        GameService gameService = new GameService(gameDAO, authService);
+
+        // create + register mailman
+        WSServerMailman mailman = new WSServerMailman(authService, gameService);
+        WSServer.setMailman(mailman);
+
+        Spark.webSocket("/ws", WSServer.class);
+
+
+
 
         // yayyy api methods
         Spark.post("/user", (req, res) -> handler.register(req, res));

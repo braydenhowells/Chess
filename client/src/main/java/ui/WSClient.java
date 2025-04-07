@@ -7,52 +7,34 @@ import java.util.Scanner;
 @ClientEndpoint // this tells java this class is a websocket client
 public class WSClient {
 
-    public static void main(String[] args) throws Exception {
-        // creates a websocket container to manage connection
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-
-        // connects this class to the ws server at the given uri
-        container.connectToServer(WSClient.class, URI.create("ws://localhost:8080/ws"));
-        // this line ^ does the 'upgrade' to WS from http
-
-        // input loop for sending messages to the server
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("enter a message to send to server:");
-
-        while (true) {
-            String input = scanner.nextLine();
-            if (session != null && session.isOpen()) {
-                try { // java suggests a try catch here
-                    session.getBasicRemote().sendText(input);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break; // optional: break if we lose the connection
-                }
-            }
-        }
-
-    }
-
     private static Session session;
 
-    @OnOpen
-    public void onOpen(Session session) {
-        // stores the session so we can reuse it
-        WSClient.session = session;
-        System.out.println("connected to websocket server");
+    public static void main(String[] args) throws Exception {
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        container.connectToServer(WSClient.class, URI.create("ws://localhost:8080/ws"));
+    }
 
-        // automatically send a hello message on connect
+
+    // sends a raw json string over the websocket
+    public static void sendRaw(String json) {
         try {
-            session.getBasicRemote().sendText("client has connected!");
+            if (session != null && session.isOpen()) {
+                session.getBasicRemote().sendText(json);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @OnOpen
+    public void onOpen(Session session) {
+        WSClient.session = session;
+        System.out.println("websocket connection established.");
+    }
+
     @OnMessage
     public void onMessage(String message) {
-        // pass any incoming server messages to the facade
-        WSServerFacade.handleServerMessage(message);
+        WSClientMailman.handleServerMessage(message);
     }
 
     @OnClose

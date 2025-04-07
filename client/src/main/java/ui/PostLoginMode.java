@@ -15,12 +15,14 @@ import static ui.EscapeSequences.SET_TEXT_UNDERLINE;
 public class PostLoginMode implements ClientMode {
     private final ServerFacade facade;
     private final String username;
+    private final String authToken;
     private List<GameData> currentGamesList = new ArrayList<>();
 
 
-    public PostLoginMode(ServerFacade facade, String username) {
+    public PostLoginMode(ServerFacade facade, String username, String authToken) {
         this.facade = facade;
         this.username = username;
+        this.authToken = authToken;
         System.out.println(help());  // as soon as we enter, the user sees the help text
     }
 
@@ -262,10 +264,10 @@ public class PostLoginMode implements ClientMode {
         // valid join
         if (uC.equalsIgnoreCase("black")) {
             facade.join(new JoinRequest("BLACK", dbGameID));
-            return new GameMode(this.facade, this.username, dbGameID, gameName, "BLACK", game);
+            return new GameMode(this.facade, this.username, this.authToken, dbGameID, gameName, "BLACK", game);
         } else if (uC.equalsIgnoreCase("white")) {
             facade.join(new JoinRequest("WHITE", dbGameID));
-            return new GameMode(this.facade, this.username, dbGameID, gameName, "WHITE", game);
+            return new GameMode(this.facade, this.username, this.authToken, dbGameID, gameName, "WHITE", game);
         } else {
             String helpText = String.format("Unable to join game. Color must be either %sblack%s or %swhite%s.",
                     SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,

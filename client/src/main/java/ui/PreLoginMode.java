@@ -21,12 +21,12 @@ public class PreLoginMode implements ClientMode {
     @Override
     public String help() {
         return String.format("""
-            Available commands:
-            register <USERNAME> <PASSWORD> <EMAIL> - %sto create an account AND login%s
-            login <USERNAME> <PASSWORD>            - %sto play chess%s
-            quit                                   - %sexit the program%s
-            help                                   - %swith possible commands%s
-            """,
+                        Available commands:
+                        register <USERNAME> <PASSWORD> <EMAIL> - %sto create an account AND login%s
+                        login <USERNAME> <PASSWORD>            - %sto play chess%s
+                        quit                                   - %sexit the program%s
+                        help                                   - %swith possible commands%s
+                        """,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
                 SET_TEXT_UNDERLINE, RESET_TEXT_UNDERLINE,
@@ -55,6 +55,8 @@ public class PreLoginMode implements ClientMode {
         }
     }
 
+    // ...
+
     private ClientMode login(String... params) {
         if (params.length == 2) {
             var result = facade.login(new LoginRequest(params[0], params[1]));
@@ -64,7 +66,7 @@ public class PreLoginMode implements ClientMode {
                 return this;
             }
             System.out.println("Welcome back, " + result.username() + "! \uD83D\uDE0E");
-            return new PostLoginMode(facade, result.username());
+            return new PostLoginMode(facade, result.username(), result.authToken());
         } else if (params.length < 2) {
             System.out.println("Unable to login. Not enough parameters entered.");
             System.out.println("Usage: login <username> <password>");
@@ -88,7 +90,7 @@ public class PreLoginMode implements ClientMode {
             }
 
             System.out.println("Welcome, " + result.username() + "! You are now logged in. \uD83D\uDE0E");
-            return new PostLoginMode(facade, result.username());
+            return new PostLoginMode(facade, result.username(), result.authToken());
         } else if (params.length < 3) {
             System.out.println("Unable to register. Not enough parameters entered.");
             System.out.println("Usage: register <username> <password> <email>");
@@ -99,4 +101,6 @@ public class PreLoginMode implements ClientMode {
         }
         return this;
     }
+
 }
+

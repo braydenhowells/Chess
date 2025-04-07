@@ -9,20 +9,26 @@ import static ui.EscapeSequences.*;
 public class GameMode implements ClientMode {
     private final ServerFacade facade;
     private final String username;
+    private final String authToken;
     private final String gameID; // this will make phase 6 easier
     private final String playerColor;
     private final String gameName;
     private final ChessGame game;
     private final boolean whitePerspective;
 
-    public GameMode(ServerFacade facade, String username, String gameID, String gameName, String playerColor, ChessGame game) {
+    public GameMode(ServerFacade facade, String username, String authToken, String gameID, String gameName, String playerColor, ChessGame game) {
         this.facade = facade;
         this.username = username;
+        this.authToken = authToken;
         this.gameID = gameID;
         this.playerColor = playerColor.toUpperCase();
         this.whitePerspective = playerColor.equalsIgnoreCase("WHITE");
         this.gameName = gameName;
         this.game = game;
+
+        // upgrade from http to ws via CONNECT now that we are in a game
+        WSClientMailman.sendConnect(authToken, Integer.parseInt(gameID), playerColor);
+
 
         // draw board on startup
         DrawBoard picasso = new DrawBoard(this.game, whitePerspective);
@@ -70,7 +76,7 @@ public class GameMode implements ClientMode {
                 return this;
 
             case "leave":
-                return new PostLoginMode(this.facade, this.username);
+                return new PostLoginMode(this.facade, this.username, this.authToken);
 
             case "quit":
                 System.out.println("Exiting the game. Goodbye!");
