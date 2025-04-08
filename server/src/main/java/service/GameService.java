@@ -109,16 +109,16 @@ public class GameService {
 
             // case where the desired color is already taken, 403
             if (jreq.playerColor().equals("BLACK")) {
-                if (data.blackUsername() != null) {
-                    // 403 error
-                    return new SimpleResult("Error: already taken");
+                if (data.blackUsername() != null && !username.equals(data.blackUsername())) {
+                    // the second check allows us to reuse join for leaving purposes ^
+                    return new SimpleResult("Error: already taken"); // 403 error
                 }
             }
 
             if (jreq.playerColor().equals("WHITE")) {
-                if (data.whiteUsername() != null) {
-                    // 403 error
-                    return new SimpleResult("Error: already taken");
+                if (data.whiteUsername() != null && !username.equals(data.whiteUsername())) {
+                    // the second check allows us to reuse join for leaving purposes ^
+                    return new SimpleResult("Error: already taken"); // 403 error
                 }
             }
         }
@@ -127,15 +127,31 @@ public class GameService {
         try {
 
             // thought process is delete the old one, and keep the new one but set the new username
+            // this allows for joining or LEAVING from a user who is already in the game
             if (color.equals("BLACK")) {
+                String newBlack;
+                if (username.equals(gameData.blackUsername())) {
+                    newBlack = null;
+                } else {
+                    newBlack = username;
+                }
+
                 gameDao.remove(String.valueOf(gameData.gameID()));
-                gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game()));
+                gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), newBlack, gameData.gameName(), gameData.game()));
             }
 
             if (color.equals("WHITE")) {
+                String newWhite;
+                if (username.equals(gameData.whiteUsername())) {
+                    newWhite = null;
+                } else {
+                    newWhite = username;
+                }
+
                 gameDao.remove(String.valueOf(gameData.gameID()));
-                gameDao.create(new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game()));
+                gameDao.create(new GameData(gameData.gameID(), newWhite, gameData.blackUsername(), gameData.gameName(), gameData.game()));
             }
+
 
             // done, so return an empty message
             return new SimpleResult(null);

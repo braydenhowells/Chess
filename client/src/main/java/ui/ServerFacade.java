@@ -114,8 +114,6 @@ public class ServerFacade {
     // methods for actually talking to server w the request objects
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
-            // debug
-
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
@@ -123,7 +121,7 @@ public class ServerFacade {
 
             // in header, use the auth token stored if we have one
             if (authToken != null) {
-                http.setRequestProperty("Authorization", authToken); // 💥 Add this line
+                http.setRequestProperty("Authorization", authToken);
             }
 
 

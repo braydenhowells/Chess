@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import requests.JoinRequest;
 
 import java.util.Arrays;
 
@@ -76,8 +77,9 @@ public class GameMode implements ClientMode {
                 return this;
 
             case "leave":
-                WSClientMailman.sendLeave(authToken, Integer.parseInt(gameID));
-                return new PostLoginMode(this.facade, this.username, this.authToken);
+                facade.join(new JoinRequest(playerColor, gameID)); // fake join that is actually leave
+                WSClientMailman.sendLeave(authToken, Integer.parseInt(gameID)); // disconnect
+                return new PostLoginMode(this.facade, this.username, this.authToken); // return
 
             case "quit":
                 System.out.println("Exiting the game. Goodbye!");
