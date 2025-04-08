@@ -31,7 +31,7 @@ class GameServiceTest {
 
     @Test
     void clear() throws SQLException {
-        gameDAO.create(new GameData(1, null, null, "gamer", new ChessGame()));
+        gameDAO.create(new GameData(1, null, null, "gamer", new ChessGame(), false));
         gameService.clear();
         assertEquals(0, gameDAO.findAll().size());
     }
@@ -46,8 +46,8 @@ class GameServiceTest {
 
     @Test
     void getGames() throws SQLException {
-        gameDAO.create(new GameData(1, null, null, "gamer", new ChessGame()));
-        gameDAO.create(new GameData(2, "white_prefilled_i_guess", "black_is_here_also", "gamer2electricBoogaloo", new ChessGame()));
+        gameDAO.create(new GameData(1, null, null, "gamer", new ChessGame(), false));
+        gameDAO.create(new GameData(2, "white_prefilled_i_guess", "black_is_here_also", "gamer2electricBoogaloo", new ChessGame(), false));
         authDAO.createAuth(new AuthData("yuh", "yuh"));
         ListResult result = gameService.getGames("yuh");
         assertNotNull(result);
@@ -56,7 +56,7 @@ class GameServiceTest {
 
     @Test
     void findGame() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "gamer", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamer", new ChessGame(), false);
         gameDAO.create(gameData);
         GameData result = gameService.findGame("1");
         assertNotNull(result);
@@ -65,7 +65,7 @@ class GameServiceTest {
 
     @Test
     void updateGameUser() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "MrGame_N_Watch", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "MrGame_N_Watch", new ChessGame(), false);
         AuthData authData = new AuthData("epicToken", "CaptainFalcon");
         gameDAO.create(gameData);
         authDAO.createAuth(authData);
@@ -94,7 +94,7 @@ class GameServiceTest {
 
     @Test
     void updateGameUserFail() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "MrGame_N_Watch", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "MrGame_N_Watch", new ChessGame(), false);
         AuthData authData = new AuthData("sadToken", "CaptainFalcon");
         gameDAO.create(gameData);
         authDAO.createAuth(authData);

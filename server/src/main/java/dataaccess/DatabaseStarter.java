@@ -12,6 +12,7 @@ public class DatabaseStarter {
               `blackUsername` varchar(256) DEFAULT NULL,
               `name` varchar(256) NOT NULL,
               `game_json` TEXT DEFAULT NULL,
+              `gameOver` BOOLEAN DEFAULT FALSE,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,

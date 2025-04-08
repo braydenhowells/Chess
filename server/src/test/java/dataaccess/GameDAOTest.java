@@ -19,8 +19,8 @@ class GameDAOTest {
 
     @Test
     void clear() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
-        GameData gameData2 = new GameData(2, null, null, "gamerMoment2", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
+        GameData gameData2 = new GameData(2, null, null, "gamerMoment2", new ChessGame(), false);
         gameDAO.create(gameData);
         gameDAO.create(gameData2);
         gameDAO.clear();
@@ -29,15 +29,15 @@ class GameDAOTest {
 
     @Test
     void create() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
         gameDAO.create(gameData);
         assertEquals(1, gameDAO.findAll().size());
     }
 
     @Test
     void findAll() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
-        GameData gameData2 = new GameData(2, null, null, "gamerMoment2", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
+        GameData gameData2 = new GameData(2, null, null, "gamerMoment2", new ChessGame(), false);
         gameDAO.create(gameData);
         gameDAO.create(gameData2);
         assertEquals(2, gameDAO.findAll().size());
@@ -45,7 +45,7 @@ class GameDAOTest {
 
     @Test
     void find() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
         gameDAO.create(gameData);
         GameData result = gameDAO.find("1");
         assertEquals(gameData.gameName(), result.gameName());
@@ -53,7 +53,7 @@ class GameDAOTest {
 
     @Test
     void remove() throws SQLException{
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
         gameDAO.create(gameData);
         gameDAO.remove("1");
         assertEquals(0, gameDAO.findAll().size());
@@ -63,7 +63,7 @@ class GameDAOTest {
     @Test
     void createFail() {
         boolean fail = false;
-        GameData gameData = new GameData(1, null, null, null, new ChessGame());
+        GameData gameData = new GameData(1, null, null, null, new ChessGame(), false);
         try {
             gameDAO.create(gameData);
         } catch (SQLException e) {
@@ -74,8 +74,8 @@ class GameDAOTest {
 
     @Test
     void findAllFail() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
-        GameData gameData2 = new GameData(2, null, null, "gamerMoment2", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
+        GameData gameData2 = new GameData(2, null, null, "gamerMoment2", new ChessGame(), false);
         gameDAO.create(gameData);
         gameDAO.create(gameData2);
         assertNotEquals(1, gameDAO.findAll().size());
@@ -83,7 +83,7 @@ class GameDAOTest {
 
     @Test
     void findFail() throws SQLException {
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
         gameDAO.create(gameData);
         GameData result = gameDAO.find("69");
         assertNull(result);
@@ -91,7 +91,7 @@ class GameDAOTest {
 
     @Test
     void removeFail() throws SQLException{
-        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame());
+        GameData gameData = new GameData(1, null, null, "gamerMoment", new ChessGame(), false);
         gameDAO.create(gameData);
         gameDAO.remove("69");
         assertEquals(1, gameDAO.findAll().size());

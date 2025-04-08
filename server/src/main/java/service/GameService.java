@@ -45,7 +45,7 @@ public class GameService {
         }
 
         try {
-            GameData data = new GameData(0, null, null, gameName, new ChessGame());
+            GameData data = new GameData(0, null, null, gameName, new ChessGame(), false);
             int gameID = gameDao.create(data);
             // return simple result w null message
             return new CreateResult(String.valueOf(gameID), null);
@@ -137,7 +137,7 @@ public class GameService {
                 }
 
                 gameDao.remove(String.valueOf(gameData.gameID()));
-                gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), newBlack, gameData.gameName(), gameData.game()));
+                gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), newBlack, gameData.gameName(), gameData.game(), gameData.gameOver()));
             }
 
             if (color.equals("WHITE")) {
@@ -149,7 +149,7 @@ public class GameService {
                 }
 
                 gameDao.remove(String.valueOf(gameData.gameID()));
-                gameDao.create(new GameData(gameData.gameID(), newWhite, gameData.blackUsername(), gameData.gameName(), gameData.game()));
+                gameDao.create(new GameData(gameData.gameID(), newWhite, gameData.blackUsername(), gameData.gameName(), gameData.game(), gameData.gameOver()));
             }
 
 
