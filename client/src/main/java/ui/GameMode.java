@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import requests.JoinRequest;
 
 import javax.websocket.ContainerProvider;
@@ -85,6 +87,9 @@ public class GameMode implements ClientMode {
                 picasso.draw(null);
                 return this;
 
+            case "move":
+                return makeMove(params);
+
             case "leave":
                 facade.join(new JoinRequest(playerColor, gameID)); // fake join that is actually leave
                 WSClientMailman.sendLeave(authToken, Integer.parseInt(gameID)); // disconnect
@@ -116,8 +121,31 @@ public class GameMode implements ClientMode {
 
     public void updateBoard(ChessGame updatedGame) {
         this.game.setBoard(updatedGame.getBoard());
-        System.out.println("♻️ LOAD_GAME received — redrawing updated board...");
+        System.out.println("LOAD_GAME received");
         new DrawBoard(this.game, whitePerspective).draw(null);
     }
+
+    private ClientMode makeMove(String... params) {
+        if (params.length != 2) {
+            System.out.println("Usage: move <FROM> <TO> (e.g. move e2 e4)");
+            return this;
+        }
+
+        ChessPosition from = HighlightHelper.formatToPosition(params[0]);
+        ChessPosition to = HighlightHelper.formatToPosition(params[1]);
+
+        if (from == null || to == null) {
+            System.out.println("Invalid move syntax.");
+            System.out.println("Usage: move <FROM> <TO> (e.g. move e2 e4)");
+            return this;
+        }
+
+        ChessMove move = new ChessMove(from, to, null);
+        // TODO: allow promotions for pawns
+        WSClientMailman.sendMakeMove(authToken, Integer.parseInt(gameID), move);
+
+        return this;
+    }
+
 
 }

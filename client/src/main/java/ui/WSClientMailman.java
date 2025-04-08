@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -46,7 +47,8 @@ public class WSClientMailman {
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
                 authToken,
-                gameID
+                gameID,
+                null // no move here, just a connection
         );
 
         String json = new Gson().toJson(command);
@@ -57,10 +59,26 @@ public class WSClientMailman {
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.LEAVE,
                 authToken,
-                gameID);
+                gameID,
+                null // again, no move
+        );
 
         String json = new Gson().toJson(command);
         WSClient.sendRaw(json);
     }
+
+    public static void sendMakeMove(String authToken, int gameID, ChessMove move) {
+        UserGameCommand command = new UserGameCommand(
+                UserGameCommand.CommandType.MAKE_MOVE,
+                authToken,
+                gameID,
+                move // include the move here
+        );
+
+        String json = new Gson().toJson(command);
+        WSClient.sendRaw(json);
+    }
+
+
 
 }

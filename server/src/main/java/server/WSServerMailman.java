@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -91,6 +92,7 @@ public class WSServerMailman {
             switch (command.getCommandType()) {
                 case CONNECT -> handleConnect(session, command);
                 case LEAVE -> handleLeave(session);
+                case MAKE_MOVE -> handleMove(command, session);
                 default -> sendError(session, "unrecognized command type: " + command.getCommandType());
             }
 
@@ -99,6 +101,49 @@ public class WSServerMailman {
             sendError(session, "invalid message format");
         }
     }
+
+    private void handleMove(UserGameCommand command, Session session) {
+        String username = sessionToUser.get(session);
+        Integer gameID = command.getGameID();
+        var move = command.getMove();
+
+        if (username == null || gameID == null || move == null) {
+            sendError(session, "Invalid move command or missing fields.");
+            return;
+        }
+
+        // Fetch the game
+        GameData gameData = gameService.findGame(String.valueOf(gameID));
+        if (gameData == null) {
+            sendError(session, "Game not found.");
+            return;
+        }
+
+        ChessGame game = gameData.game();
+
+        try {
+            game.makeMove(move); // this will throw an exception if move is illegal
+
+            // Persist updated game
+            GameData updated = new GameData(
+                    gameData.gameID(),
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    game,
+                    gameData.gameOver() // optionally update gameOver if handling that
+            );
+            gameService.updateGame(updated);
+
+            // Broadcast new board to all members
+            ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+            msg.setGame(updated);
+            broadcastMessage(gameID, msg, null); // exclude nobody hehe
+        } catch (Exception e) {
+            sendError(session, "Invalid move: " + e.getMessage());
+        }
+    }
+
 
     private void handleConnect(Session session, UserGameCommand command) {
         try {

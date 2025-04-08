@@ -79,6 +79,12 @@ public class GameService {
         }
     }
 
+    public void updateGame(GameData updatedGame) throws SQLException {
+        gameDao.remove(String.valueOf(updatedGame.gameID()));
+        gameDao.create(updatedGame);
+    }
+
+
     public SimpleResult join(GameData gameData, String color, String authToken, JoinRequest jreq) {
         String verification = authService.verifyAuth(authToken,true, Arrays.asList(jreq.gameID(), jreq.playerColor()));
 

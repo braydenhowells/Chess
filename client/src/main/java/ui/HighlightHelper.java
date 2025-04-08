@@ -38,7 +38,7 @@ public class HighlightHelper {
         return mode;
     }
 
-    private static ChessPosition formatToPosition(String userInputPos) {
+    public static ChessPosition formatToPosition(String userInputPos) {
         if (userInputPos.length() != 2) return null;
 
         char file = Character.toLowerCase(userInputPos.charAt(0));
