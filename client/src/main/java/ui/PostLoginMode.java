@@ -240,14 +240,23 @@ public class PostLoginMode implements ClientMode {
         ChessGame game = gameData.game();
         String gameName = gameData.gameName();
         String dbGameID = String.valueOf(gameData.gameID());
-        String uC = params[1];
+        String uC = params[1]; // this is userColor. represents the attempted color to join as
 
-        // prevent joining if user is already in the game
+        // if the user is already in the game, re-enter gameMode without a join call
+        if (username.equalsIgnoreCase(gameData.whiteUsername()) && uC.equalsIgnoreCase("WHITE")) {
+            return new GameMode(this.facade, this.username, this.authToken, dbGameID, gameName, "WHITE", game);
+        }
+        if (username.equalsIgnoreCase(gameData.blackUsername()) && uC.equalsIgnoreCase("BLACK")) {
+            return new GameMode(this.facade, this.username, this.authToken, dbGameID, gameName, "BLACK", game);
+        }
+
+        // if user tries to join as both colors, block it
         if (username.equalsIgnoreCase(gameData.whiteUsername()) || username.equalsIgnoreCase(gameData.blackUsername())) {
-            System.out.println("Unable to join. You are already in this game.");
+            System.out.println("Unable to join as " + uC + ". You are already in this game.");
             System.out.println("Usage: list");
             return this;
         }
+
 
         // prevent joining if the chosen color is taken
         if (uC.equalsIgnoreCase("white") && gameData.whiteUsername() != null) {
