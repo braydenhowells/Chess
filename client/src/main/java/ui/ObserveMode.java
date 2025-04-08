@@ -19,11 +19,13 @@ public class ObserveMode implements ClientMode {
     private final String whiteUsername;
     private final String blackUsername;
     private final ChessGame game;
+    private final String authToken;
 
-    public ObserveMode(ServerFacade facade, String username, String gameID, String gameName,
+    public ObserveMode(ServerFacade facade, String username, String authToken, String gameID, String gameName,
                        String whiteUsername, String blackUsername, ChessGame game) {
         this.facade = facade;
         this.username = username;
+        this.authToken = authToken;
         this.gameID = gameID;
         this.gameName = gameName;
         this.whiteUsername = whiteUsername;
@@ -70,7 +72,8 @@ public class ObserveMode implements ClientMode {
                 return this;
 
             case "leave":
-                return new PostLoginMode(facade, username);
+                WSClientMailman.sendLeave(authToken, Integer.parseInt(gameID));
+                return new PostLoginMode(facade, username, authToken);
 
             case "quit":
                 System.out.println("Goodbye.");

@@ -11,7 +11,6 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -19,15 +18,17 @@ public class WSServerMailman {
 
     private final AuthService authService;
     private final GameService gameService;
-    private final ConcurrentHashMap<String, Session> activeSessions = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Session> userToSession = new ConcurrentHashMap<>();
     // keeps ^^ track of ALL the sessions in our app. key = username, val = session
+    private final ConcurrentHashMap<Session, String> sessionToUser = new ConcurrentHashMap<>();
+    // reversal of our 1st map so we can easily find the user connected to a session
     private final ConcurrentHashMap<Integer, CopyOnWriteArrayList<String>> gameMembers = new ConcurrentHashMap<>();
-    // keeps ^^ track of ALL the games currently attended by players / observers. key = gameID, val = username set
+    // keeps ^^ track of ALL the games currently attended by players / observers. key = gameID, val = username array
+    private final ConcurrentHashMap<String, Integer> userToGame = new ConcurrentHashMap<>();
+    // keeps ^^ track of the game a user is in. key = user, val = gameID
+    // a user can be in here multiple times with different gameIDs for all the games they are in
 
 
-
-    // track all active sessions
-    private final Set<Session> sessions = ConcurrentHashMap.newKeySet();
 
     public WSServerMailman(AuthService authService, GameService gameService) {
         this.authService = authService;
@@ -35,16 +36,50 @@ public class WSServerMailman {
     }
 
     public void onConnect(Session session) {
-        sessions.add(session);
         System.out.println("a client connected");
+    }
 
+    private void handleLeave(Session session) {
+        try {
+            session.close(); // triggers onDisconnect
+        } catch (Exception e) {
+            e.printStackTrace(); // debug
+            sendError(session, "leave command caused an error somehow");
+        }
     }
 
     public void onDisconnect(Session session) {
-        sessions.remove(session);
-        System.out.println("a client disconnected");
+        // do some actual sessions removal and make sure it dies
+        System.out.println("a client disconnected"); // debug
+
+        String dyingUser = sessionToUser.get(session);
+
+        // send the leaving notification
+        if (dyingUser != null) {
+            Integer gameID = userToGame.get(dyingUser);
+            ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            msg.setMessage(dyingUser + " left the game");
+            broadcastMessage(gameID, msg, dyingUser);
+        }
+
+        if (dyingUser != null) {
+            sessionToUser.remove(session); // take out of maps
+            userToSession.remove(dyingUser);
+
+            Integer gameID = userToGame.get(dyingUser);
+            if (gameID != null) {
+                CopyOnWriteArrayList<String> members = gameMembers.get(gameID);
+                if (members != null) {
+
+                    members.remove(dyingUser);
+                }
+            }
+            userToGame.remove(dyingUser);
+        }
     }
 
+
+    // this gets called every time something is sent to the server
     public void onMessage(Session session, String message) {
         System.out.println("received message: " + message);
 
@@ -52,8 +87,10 @@ public class WSServerMailman {
             Gson gson = new Gson();
             UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
 
+            // sort which type of message this is
             switch (command.getCommandType()) {
                 case CONNECT -> handleConnect(session, command);
+                case LEAVE -> handleLeave(session);
                 default -> sendError(session, "unrecognized command type: " + command.getCommandType());
             }
 
@@ -77,7 +114,13 @@ public class WSServerMailman {
 
             // add the session to our map after we know that sucker is legit
             String currentUsername = authData.username();
-            activeSessions.put(currentUsername, session);
+            userToSession.put(currentUsername, session);
+            // add to reverse map
+            sessionToUser.put(session, currentUsername);
+            // remember what game we are attached to for easy delete
+            userToGame.put(currentUsername, gameID);
+
+
 
             // add user to the list of game members
             CopyOnWriteArrayList<String> members = gameMembers.get(gameID);
@@ -135,7 +178,7 @@ public class WSServerMailman {
             if (Objects.equals(username, excludeThisUser)) {
                 continue;
             }
-            Session session = activeSessions.get(username);
+            Session session = userToSession.get(username);
             if (session != null && session.isOpen()) {
                 sendMessage(session, message);
             }

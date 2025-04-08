@@ -50,8 +50,6 @@ public class Server {
         Spark.webSocket("/ws", WSServer.class);
 
 
-
-
         // yayyy api methods
         Spark.post("/user", (req, res) -> handler.register(req, res));
         Spark.delete("/db", (req, res) -> handler.clear(res)); // no api body, no auth

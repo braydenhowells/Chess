@@ -20,11 +20,21 @@ public class WSClientMailman {
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
                 authToken,
-                gameID,
-                color // will be "WHITE", "BLACK", or "OBSERVER"
+                gameID
         );
 
         String json = new Gson().toJson(command);
         WSClient.sendRaw(json);
     }
+
+    public static void sendLeave(String authToken, int gameID) {
+        UserGameCommand command = new UserGameCommand(
+                UserGameCommand.CommandType.LEAVE,
+                authToken,
+                gameID);
+
+        String json = new Gson().toJson(command);
+        WSClient.sendRaw(json);
+    }
+
 }

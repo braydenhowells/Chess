@@ -12,6 +12,7 @@ public class WSServer {
         mailman = instance;
     }
 
+    // so these show up as gray because we do not call them manually, but jetty uses them still
     @OnWebSocketConnect
     public void onConnect(Session session) {
         mailman.onConnect(session);

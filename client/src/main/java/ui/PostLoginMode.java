@@ -194,7 +194,7 @@ public class PostLoginMode implements ClientMode {
         String dbGameID = String.valueOf(gameData.gameID());
 
         // enter observe mode
-        return new ObserveMode(this.facade, this.username, dbGameID, gameName,
+        return new ObserveMode(this.facade, this.username, this.authToken, dbGameID, gameName,
                 gameData.whiteUsername(), gameData.blackUsername(), game);
     }
 
