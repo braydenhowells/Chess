@@ -76,11 +76,13 @@ public class GameMode implements ClientMode {
                 return this;
 
             case "leave":
+                WSClientMailman.sendLeave(authToken, Integer.parseInt(gameID));
                 return new PostLoginMode(this.facade, this.username, this.authToken);
 
             case "quit":
                 System.out.println("Exiting the game. Goodbye!");
                 return null;
+
             case "highlight":
                 return highlight(params);
             default:
