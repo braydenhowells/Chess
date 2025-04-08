@@ -135,15 +135,22 @@ public class WSServerMailman {
             );
             gameService.updateGame(updated);
 
-            // Broadcast new board to all members
+            // broadcast LOAD_GAME to all members
             ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             msg.setGame(updated);
             broadcastMessage(gameID, msg, null); // exclude nobody hehe
+
+            // send NOTIFICATION to other players
+            String moveText = username + " moved from " + move.getStartPosition() + " to " + move.getEndPosition();
+            ServerMessage noti = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            noti.setMessage(moveText);
+            // goes to all users except the one who moved
+            broadcastMessage(gameID, noti, username);
+
         } catch (Exception e) {
             sendError(session, "Invalid move: " + e.getMessage());
         }
     }
-
 
     private void handleConnect(Session session, UserGameCommand command) {
         try {
