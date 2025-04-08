@@ -24,6 +24,7 @@ public class ObserveMode implements ClientMode {
     public ObserveMode(ServerFacade facade, String username, String authToken, String gameID, String gameName,
                        String whiteUsername, String blackUsername, ChessGame game) {
         this.facade = facade;
+        WSClientMailman.setActiveMode(this); // update mailman on our current mode
         this.username = username;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -110,4 +111,10 @@ public class ObserveMode implements ClientMode {
     private String getPlayerOrEmpty(String name) {
         return (name == null || name.isBlank()) ? "(empty)" : name;
     }
+
+    public void updateBoard(ChessGame updatedGame) {
+        this.game.setBoard(updatedGame.getBoard());
+        new DrawBoard(this.game, true).draw(null);
+    }
+
 }

@@ -3,6 +3,9 @@ package ui;
 import chess.ChessGame;
 import requests.JoinRequest;
 
+import javax.websocket.ContainerProvider;
+import javax.websocket.WebSocketContainer;
+import java.net.URI;
 import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
@@ -19,6 +22,7 @@ public class GameMode implements ClientMode {
 
     public GameMode(ServerFacade facade, String username, String authToken, String gameID, String gameName, String playerColor, ChessGame game) {
         this.facade = facade;
+        WSClientMailman.setActiveMode(this); // tell mailman what mode we are using
         this.username = username;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -28,6 +32,12 @@ public class GameMode implements ClientMode {
         this.game = game;
 
         // upgrade from http to ws via CONNECT now that we are in a game
+        try {
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            container.connectToServer(WSClient.class, URI.create("ws://localhost:8080/ws"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         WSClientMailman.sendConnect(authToken, Integer.parseInt(gameID), playerColor);
 
 
@@ -71,8 +81,7 @@ public class GameMode implements ClientMode {
                 return this;
 
             case "redraw":
-                DrawBoard picasso = new DrawBoard(game, whitePerspective);
-                // checks if player color is WHITE. if so, then sets whitePerspective as true
+                DrawBoard picasso = new DrawBoard(game, whitePerspective); // <- white or black bool
                 picasso.draw(null);
                 return this;
 
@@ -87,6 +96,7 @@ public class GameMode implements ClientMode {
 
             case "highlight":
                 return highlight(params);
+
             default:
                 System.out.println("Unknown in-game command: " + cmd);
                 System.out.println("Type 'help' to see available commands.");
@@ -103,4 +113,11 @@ public class GameMode implements ClientMode {
         // use the helper, shared for GameMode and ObserveMode
         return HighlightHelper.highlight(params[0], this.game, this, whitePerspective);
     }
+
+    public void updateBoard(ChessGame updatedGame) {
+        this.game.setBoard(updatedGame.getBoard());
+        System.out.println("♻️ LOAD_GAME received — redrawing updated board...");
+        new DrawBoard(this.game, whitePerspective).draw(null);
+    }
+
 }
