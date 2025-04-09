@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -107,6 +108,14 @@ public class WSServerMailman {
         Integer gameID = command.getGameID();
         var move = command.getMove();
 
+        // check auth rq
+        String authToken = command.getAuthToken();
+        AuthData authData = authService.getAuthData(authToken);
+        if (authData == null) {
+            sendError(session, "Invalid or unauthorized auth token.");
+            return;
+        }
+
         if (username == null || gameID == null || move == null) {
             sendError(session, "Invalid move command or missing fields.");
             return;
@@ -120,6 +129,20 @@ public class WSServerMailman {
         }
 
         ChessGame game = gameData.game();
+
+        // make sure it is our turn to move
+        ChessGame.TeamColor turn = game.getTeamTurn();
+        String whitePlayer = gameData.whiteUsername();
+        String blackPlayer = gameData.blackUsername();
+        boolean isWhiteTurn = turn == ChessGame.TeamColor.WHITE;
+        boolean isBlackTurn = turn == ChessGame.TeamColor.BLACK;
+        boolean isWhiteUser = username.equals(whitePlayer);
+        boolean isBlackUser = username.equals(blackPlayer);
+        // stop the move if it is not ours
+        if ((isWhiteTurn && !isWhiteUser) || (isBlackTurn && !isBlackUser)) {
+            sendError(session, "It's not your turn.");
+            return;
+        }
 
         try {
             game.makeMove(move); // this will throw an exception if move is illegal
@@ -141,7 +164,8 @@ public class WSServerMailman {
             broadcastMessage(gameID, msg, null); // exclude nobody hehe
 
             // send NOTIFICATION to other players
-            String moveText = username + " moved from " + move.getStartPosition() + " to " + move.getEndPosition();
+            String moveText = username + " moved from " + unFormatPosition(move.getStartPosition()) +
+                    " to " + unFormatPosition(move.getEndPosition());
             ServerMessage noti = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             noti.setMessage(moveText);
             // goes to all users except the one who moved
@@ -151,6 +175,28 @@ public class WSServerMailman {
             sendError(session, "Invalid move: " + e.getMessage());
         }
     }
+
+    private String unFormatPosition(ChessPosition pos) {
+        int col = pos.getColumn();
+        int row = pos.getRow();
+        String file;
+        String rank = String.valueOf(row);
+
+        switch (col) {
+            case 1 -> file = "a";
+            case 2 -> file = "b";
+            case 3 -> file = "c";
+            case 4 -> file = "d";
+            case 5 -> file = "e";
+            case 6 -> file = "f";
+            case 7 -> file = "g";
+            case 8 -> file = "h";
+            default -> file = "?"; // just in case?? forces a default anyway
+        }
+
+        return file + rank; // as a string
+    }
+
 
     private void handleConnect(Session session, UserGameCommand command) {
         try {

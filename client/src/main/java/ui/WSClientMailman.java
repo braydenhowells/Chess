@@ -43,7 +43,7 @@ public class WSClientMailman {
 
 
     // sends a CONNECT command to the server
-    public static void sendConnect(String authToken, int gameID, String color) {
+    public static void sendConnect(String authToken, int gameID) {
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
                 authToken,

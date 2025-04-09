@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import requests.JoinRequest;
 
@@ -9,6 +10,7 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
@@ -40,15 +42,9 @@ public class GameMode implements ClientMode {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        WSClientMailman.sendConnect(authToken, Integer.parseInt(gameID), playerColor);
-
-
-        // draw board on startup
-        DrawBoard picasso = new DrawBoard(this.game, whitePerspective);
-        picasso.draw(null);
-
+        WSClientMailman.sendConnect(authToken, Integer.parseInt(gameID));
+        // welcome message
         System.out.println("\uD83C\uDFC1 " + username + ", you have joined game \"" + gameName + "\" as " + this.playerColor + ".");
-        System.out.println(help());
     }
 
     @Override
@@ -121,8 +117,11 @@ public class GameMode implements ClientMode {
 
     public void updateBoard(ChessGame updatedGame) {
         this.game.setBoard(updatedGame.getBoard());
+        this.game.setTeamTurn(updatedGame.getTeamTurn());
         System.out.println("LOAD_GAME received");
         new DrawBoard(this.game, whitePerspective).draw(null);
+        System.out.println(help());
+
     }
 
     private ClientMode makeMove(String... params) {
@@ -131,21 +130,87 @@ public class GameMode implements ClientMode {
             return this;
         }
 
-        ChessPosition from = HighlightHelper.formatToPosition(params[0]);
-        ChessPosition to = HighlightHelper.formatToPosition(params[1]);
+        ChessPosition startPos = HighlightHelper.formatToPosition(params[0]);
+        ChessPosition endPos = HighlightHelper.formatToPosition(params[1]);
 
-        if (from == null || to == null) {
+        if (startPos == null || endPos == null) {
             System.out.println("Invalid move syntax.");
             System.out.println("Usage: move <FROM> <TO> (e.g. move e2 e4)");
             return this;
         }
 
-        ChessMove move = new ChessMove(from, to, null);
-        // TODO: allow promotions for pawns
-        WSClientMailman.sendMakeMove(authToken, Integer.parseInt(gameID), move);
+        ChessGame.TeamColor currentTurn = game.getTeamTurn();
+        if (!currentTurn.name().toUpperCase().equals(playerColor)) {
+            System.out.println("⏳ It is not currently your turn to move.");
+            return this;
+        }
 
+        var piece = game.getBoard().getPiece(startPos);
+        if (piece == null) {
+            System.out.println("There's no piece at " + params[0] + ".");
+            return this;
+        }
+
+        // promo tiiiiiiiime
+        if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if ((playerColor == ChessGame.TeamColor.WHITE.name() && endPos.getRow() == 8) ||
+                    (playerColor == ChessGame.TeamColor.BLACK.name() && endPos.getRow() == 1)) {
+                // this means we have a pawn promo move. time to ask user for a promo piece
+                String promoPieceString = handlePromo();
+                if (promoPieceString == null) {
+                    System.out.println("Input not recognized for promotion piece. Cancelling move.");
+                    return this;
+                }
+
+                ChessPiece.PieceType promoPiece;
+                switch (promoPieceString) {
+                    case "Q":
+                        promoPiece = ChessPiece.PieceType.QUEEN;
+                        break;
+                    case "R":
+                        promoPiece = ChessPiece.PieceType.ROOK;
+                        break;
+                    case "B":
+                        promoPiece = ChessPiece.PieceType.BISHOP;
+                        break;
+                    case "K":
+                        promoPiece = ChessPiece.PieceType.KNIGHT;
+                        break;
+                    default:
+                        promoPiece = null; // should never hit
+                        break;
+                }
+                ChessMove move = new ChessMove(startPos, endPos, promoPiece);
+                WSClientMailman.sendMakeMove(authToken, Integer.parseInt(gameID), move);
+                return this;
+
+
+            }
+        }
+
+        if (!piece.getTeamColor().name().toUpperCase().equals(playerColor)) {
+            System.out.println("You can't move your opponent's piece.");
+            return this;
+        }
+
+        ChessMove move = new ChessMove(startPos, endPos, null);
+        WSClientMailman.sendMakeMove(authToken, Integer.parseInt(gameID), move);
         return this;
     }
+
+    private String handlePromo() {
+        System.out.print("Promote to (Q, R, B, K): ");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine().trim().toUpperCase();
+
+        switch (input) {
+            case "Q", "R", "B", "K":
+                return input;
+            default:
+                return null;
+        }
+    }
+
 
 
 }

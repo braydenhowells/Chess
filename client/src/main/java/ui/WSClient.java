@@ -2,7 +2,6 @@ package ui;
 
 import javax.websocket.*;
 import java.net.URI;
-import java.util.Scanner;
 
 @ClientEndpoint // this tells java this class is a websocket client
 public class WSClient {
