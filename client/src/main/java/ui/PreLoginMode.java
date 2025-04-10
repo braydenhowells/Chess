@@ -50,6 +50,7 @@ public class PreLoginMode implements ClientMode {
             case "quit":
                 return null;
             default:
+                System.out.println("Command not recognized: " + cmd);
                 System.out.println(help());
                 return this;
         }

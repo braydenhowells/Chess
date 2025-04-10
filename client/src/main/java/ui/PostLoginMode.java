@@ -107,13 +107,8 @@ public class PostLoginMode implements ClientMode {
             return this;
         }
 
-        var result = facade.list();
-        if (result.message() != null && result.message().contains("Error")) {
-            System.out.println("Failed to list games. " + result.message());
-            return this;
-        }
+        List<GameData> games = getGames();
 
-        var games = result.games();
         if (games == null || games.isEmpty()) {
             System.out.println("There are no games yet! Try creating your own \uD83D\uDC51");
             System.out.println("Usage: create <game name>");
@@ -224,6 +219,16 @@ public class PostLoginMode implements ClientMode {
             System.out.println("Usage: join <ID> <color>");
             return this;
         }
+
+        // update list
+        currentGamesList = getGames();
+        if (currentGamesList == null) {
+            System.out.println("There are no games yet! Try creating your own \uD83D\uDC51");
+            System.out.println("Usage: create <game name>");
+            return this;
+        }
+
+
         if (displayGameID > currentGamesList.size()) {
             System.out.println("Unable to join game. Game ID does not match " +
                     "any existing games.");
@@ -297,6 +302,16 @@ public class PostLoginMode implements ClientMode {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    private List<GameData> getGames() {
+        var result = facade.list();
+        if (result.message() != null && result.message().contains("Error")) {
+            System.out.println("Failed to list games. " + result.message());
+            return null;
+        }
+
+        return result.games();
     }
 
 }

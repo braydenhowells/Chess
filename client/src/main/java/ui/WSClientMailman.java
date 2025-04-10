@@ -79,6 +79,18 @@ public class WSClientMailman {
         WSClient.sendRaw(json);
     }
 
+    public static void sendResign(String authToken, int gameID) {
+        UserGameCommand command = new UserGameCommand(
+                UserGameCommand.CommandType.RESIGN,
+                authToken,
+                gameID,
+                null // no more moves :( boohoo
+        );
+
+        WSClient.sendRaw(new Gson().toJson(command));
+    }
+
+
 
 
 }

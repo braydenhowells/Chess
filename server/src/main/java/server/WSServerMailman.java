@@ -6,12 +6,15 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import requests.JoinRequest;
 import service.AuthService;
 import service.GameService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -29,7 +32,8 @@ public class WSServerMailman {
     private final ConcurrentHashMap<String, Integer> userToGame = new ConcurrentHashMap<>();
     // keeps ^^ track of the game a user is in. key = user, val = gameID
     // a user can be in here multiple times with different gameIDs for all the games they are in
-
+    private final ConcurrentHashMap<String, String> userToAuthToken = new ConcurrentHashMap<>();
+    // LAST map, used for leaving games with the auth token
 
 
     public WSServerMailman(AuthService authService, GameService gameService) {
@@ -42,13 +46,55 @@ public class WSServerMailman {
     }
 
     private void handleLeave(Session session) {
+        // get user
+        String dyingUser = sessionToUser.get(session);
+
+        // see if they are an observer (a null value)
+        if (dyingUser == null) {
+            try {
+                session.close(); // just close it, no need to remove username from game
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        // get the gameID
+        Integer gameID = userToGame.get(dyingUser);
+
+        // use the gameID map to get the game data
+        GameData gameData = gameService.findGame(String.valueOf(gameID));
+
+        // get auth token
+        String authToken = userToAuthToken.get(dyingUser);
+
+        // sanity check
+        if (gameData == null || authToken == null) {
+            try {
+                session.close(); // still try to close
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        // update db with null username
+        // by calling http join from here (fake join = leave)
+        if (dyingUser.equals(gameData.whiteUsername())) {
+            gameService.join(gameData, "WHITE", authToken, new JoinRequest("WHITE", String.valueOf(gameID)));
+        } else if (dyingUser.equals(gameData.blackUsername())) {
+            gameService.join(gameData, "BLACK", authToken, new JoinRequest("BLACK", String.valueOf(gameID)));
+        }
+        // else they are an observer – no need to update the db
+
+        // remove from websocket also
         try {
             session.close(); // triggers onDisconnect
         } catch (Exception e) {
             e.printStackTrace(); // debug
-            sendError(session, "leave command caused an error somehow");
         }
     }
+
 
     public void onDisconnect(Session session) {
         // do some actual sessions removal and make sure it dies
@@ -67,12 +113,13 @@ public class WSServerMailman {
         if (dyingUser != null) {
             sessionToUser.remove(session); // take out of maps
             userToSession.remove(dyingUser);
+            userToAuthToken.remove(dyingUser);
+
 
             Integer gameID = userToGame.get(dyingUser);
             if (gameID != null) {
                 CopyOnWriteArrayList<String> members = gameMembers.get(gameID);
                 if (members != null) {
-
                     members.remove(dyingUser);
                 }
             }
@@ -92,8 +139,13 @@ public class WSServerMailman {
             // sort which type of message this is
             switch (command.getCommandType()) {
                 case CONNECT -> handleConnect(session, command);
+
                 case LEAVE -> handleLeave(session);
+
                 case MAKE_MOVE -> handleMove(command, session);
+
+                case RESIGN -> handleResign(command, session);
+
                 default -> sendError(session, "unrecognized command type: " + command.getCommandType());
             }
 
@@ -125,6 +177,12 @@ public class WSServerMailman {
         GameData gameData = gameService.findGame(String.valueOf(gameID));
         if (gameData == null) {
             sendError(session, "Game not found.");
+            return;
+        }
+
+        // is game over?
+        if (gameData.gameOver()) {
+            sendError(session, "Invalid move: this game is already over");
             return;
         }
 
@@ -170,11 +228,102 @@ public class WSServerMailman {
             noti.setMessage(moveText);
             // goes to all users except the one who moved
             broadcastMessage(gameID, noti, username);
+            // broadcast check/mate/stale if we need to
+            checkGameState(game, gameData, gameID);
+
 
         } catch (Exception e) {
             sendError(session, "Invalid move: " + e.getMessage());
         }
     }
+
+    private void checkGameState(ChessGame game, GameData gameData, int gameID) {
+        ChessGame.TeamColor nextTurn = game.getTeamTurn();
+
+        String color = "";
+        if (nextTurn == ChessGame.TeamColor.WHITE) {
+            color = "White";
+        } else if (nextTurn == ChessGame.TeamColor.BLACK) {
+            color = "Black";
+        }
+
+        String inCheckUsername = "";
+        if (nextTurn == ChessGame.TeamColor.WHITE) {
+            inCheckUsername = gameData.whiteUsername();
+        } else if (nextTurn == ChessGame.TeamColor.BLACK) {
+            inCheckUsername = gameData.blackUsername();
+        }
+
+        ChessGame.TeamColor currentTurn;
+        if (nextTurn == ChessGame.TeamColor.WHITE) {
+            currentTurn = ChessGame.TeamColor.BLACK;
+        } else {
+            currentTurn = ChessGame.TeamColor.WHITE;
+        }
+
+        String winnerUsername = "";
+        if (currentTurn == ChessGame.TeamColor.WHITE) {
+            winnerUsername = gameData.whiteUsername();
+        } else if (currentTurn == ChessGame.TeamColor.BLACK) {
+            winnerUsername = gameData.blackUsername();
+        }
+
+        boolean isInCheckmate = game.isInCheckmate(nextTurn);
+        if (isInCheckmate) {
+            ServerMessage checkmateMsg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            checkmateMsg.setMessage("Checkmate! " + winnerUsername + " (" + (currentTurn == ChessGame.TeamColor.WHITE ? "White" : "Black") + ") wins.");
+            broadcastMessage(gameID, checkmateMsg, null);
+
+            // mark game over
+            try {
+                gameService.updateGame(new GameData(
+                        gameData.gameID(),
+                        gameData.whiteUsername(),
+                        gameData.blackUsername(),
+                        gameData.gameName(),
+                        game,
+                        true // game now over
+                ));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
+        boolean isStalemate = game.isInStalemate(nextTurn);
+        if (isStalemate) {
+            ServerMessage stalemateMsg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            stalemateMsg.setMessage("Stalemate! The game is a draw.");
+            broadcastMessage(gameID, stalemateMsg, null);
+
+            // mark game over
+            try {
+                gameService.updateGame(new GameData(
+                        gameData.gameID(),
+                        gameData.whiteUsername(),
+                        gameData.blackUsername(),
+                        gameData.gameName(),
+                        game,
+                        true
+                ));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
+        boolean isInCheck = game.isInCheck(nextTurn);
+        if (isInCheck) {
+            ServerMessage checkMsg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            checkMsg.setMessage("Check! " + inCheckUsername + " (" + color + ") is in check.");
+            broadcastMessage(gameID, checkMsg, null);
+        }
+    }
+
+
+
 
     private String unFormatPosition(ChessPosition pos) {
         int col = pos.getColumn();
@@ -197,6 +346,50 @@ public class WSServerMailman {
         return file + rank; // as a string
     }
 
+    private void handleResign(UserGameCommand command, Session session) {
+        String username = sessionToUser.get(session);
+        int gameID = command.getGameID();
+        GameData gameData = gameService.findGame(String.valueOf(gameID));
+
+        // make sure game is not already over
+        ChessGame game = gameData.game();
+        if (gameData.gameOver()) {
+            sendError(session, "Failed to resign, this game is already over.");
+            return;
+        }
+
+        // check if the user is in the game
+        // this will allow us to pass the resign test from observer
+        List<String> players = List.of(gameData.blackUsername(), gameData.whiteUsername());
+        if (!players.contains(username)) {
+            sendError(session, "Failed to resign, you are an observer.");
+            return;
+        }
+
+
+
+        // same game but gameOver = true
+        GameData updated = new GameData(
+                gameData.gameID(),
+                gameData.whiteUsername(),
+                gameData.blackUsername(),
+                gameData.gameName(),
+                game,
+                true // gg
+        );
+        try {
+            gameService.updateGame(updated);
+        } catch (SQLException e) {
+            sendError(session, "SQL error: " + e.getMessage());
+        }
+
+        // Notify all users
+        ServerMessage resignNoti = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        resignNoti.setMessage(username + " resigned the game.");
+        broadcastMessage(gameID, resignNoti, null);
+    }
+
+
 
     private void handleConnect(Session session, UserGameCommand command) {
         try {
@@ -217,6 +410,8 @@ public class WSServerMailman {
             sessionToUser.put(session, currentUsername);
             // remember what game we are attached to for easy delete
             userToGame.put(currentUsername, gameID);
+            // keep our auth token as well
+            userToAuthToken.put(currentUsername, authToken);
 
 
 
@@ -276,6 +471,14 @@ public class WSServerMailman {
             if (Objects.equals(username, excludeThisUser)) {
                 continue;
             }
+
+            // manually get the gameID in case leaving the game did not remove it fast enough
+            // race condition??
+            Integer actualGameID = userToGame.get(username);
+            if (actualGameID == null || actualGameID != gameID) {
+                continue; // skip this user if they exist
+            }
+
             Session session = userToSession.get(username);
             if (session != null && session.isOpen()) {
                 sendMessage(session, message);

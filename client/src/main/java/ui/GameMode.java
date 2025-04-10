@@ -86,8 +86,22 @@ public class GameMode implements ClientMode {
             case "move":
                 return makeMove(params);
 
+            case "resign":
+                String confirm = resignPrompt();
+                if (confirm == null) {
+                    System.out.println("Failed to resign, invalid input.");
+                    return this;
+                }
+
+                if (confirm.equals("Y")) {
+                    WSClientMailman.sendResign(authToken, Integer.parseInt(gameID));
+                    System.out.println("You have resigned. GG soldier.");
+                } else {
+                    System.out.println("Resign cancelled. Never give up!");
+                }
+                return this;
+
             case "leave":
-                facade.join(new JoinRequest(playerColor, gameID)); // fake join that is actually leave
                 WSClientMailman.sendLeave(authToken, Integer.parseInt(gameID)); // disconnect
                 return new PostLoginMode(this.facade, this.username, this.authToken); // return
 
@@ -156,7 +170,7 @@ public class GameMode implements ClientMode {
             if ((playerColor == ChessGame.TeamColor.WHITE.name() && endPos.getRow() == 8) ||
                     (playerColor == ChessGame.TeamColor.BLACK.name() && endPos.getRow() == 1)) {
                 // this means we have a pawn promo move. time to ask user for a promo piece
-                String promoPieceString = handlePromo();
+                String promoPieceString = promoPrompt();
                 if (promoPieceString == null) {
                     System.out.println("Input not recognized for promotion piece. Cancelling move.");
                     return this;
@@ -198,7 +212,7 @@ public class GameMode implements ClientMode {
         return this;
     }
 
-    private String handlePromo() {
+    private String promoPrompt() {
         System.out.print("Promote to (Q, R, B, K): ");
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine().trim().toUpperCase();
@@ -210,6 +224,20 @@ public class GameMode implements ClientMode {
                 return null;
         }
     }
+
+    private String resignPrompt() {
+        System.out.print("Are you sure you want to resign? (Y/N): ");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine().trim().toUpperCase();
+
+        switch (input) {
+            case "Y", "N":
+                return input;
+            default:
+                return null;
+        }
+    }
+
 
 
 
