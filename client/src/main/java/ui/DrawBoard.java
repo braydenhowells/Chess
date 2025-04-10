@@ -77,7 +77,7 @@ public class DrawBoard {
                     if (highlights != null && highlights.contains(currentPos)) {
                         bgColor = isLightSquare ? SET_BG_COLOR_YELLOW : SET_BG_COLOR_HIGHLIGHT_DARK;
                     } else {
-                        bgColor = isLightSquare ? SET_BG_COLOR_TAN : SET_BG_COLOR_GREEN_custom;
+                        bgColor = isLightSquare ? SET_BG_COLOR_TAN : SET_BG_COLOR_GREEN_CUSTOM;
                     }
 
 
@@ -95,7 +95,7 @@ public class DrawBoard {
 
 
     private String getPieceSymbol(ChessPiece piece) {
-        if (piece == null) return EMPTY;
+        if (piece == null) {return EMPTY;}
 
         return switch (piece.getPieceType()) {
             case KING -> BLACK_KING;
@@ -109,7 +109,7 @@ public class DrawBoard {
 
 
     private String getPieceColor(ChessPiece piece) {
-        if (piece == null) return ""; // No color for empty square
+        if (piece == null) {return "";} // No color for empty square
         return (piece.getTeamColor() == ChessGame.TeamColor.BLACK)
                 ? SET_TEXT_COLOR_BLACK
                 : SET_TEXT_COLOR_WHITE;

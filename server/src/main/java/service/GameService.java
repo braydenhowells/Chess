@@ -143,7 +143,8 @@ public class GameService {
                 }
 
                 gameDao.remove(String.valueOf(gameData.gameID()));
-                gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), newBlack, gameData.gameName(), gameData.game(), gameData.gameOver()));
+                gameDao.create(new GameData(gameData.gameID(), gameData.whiteUsername(), newBlack,
+                        gameData.gameName(), gameData.game(), gameData.gameOver()));
             }
 
             if (color.equals("WHITE")) {
@@ -155,7 +156,8 @@ public class GameService {
                 }
 
                 gameDao.remove(String.valueOf(gameData.gameID()));
-                gameDao.create(new GameData(gameData.gameID(), newWhite, gameData.blackUsername(), gameData.gameName(), gameData.game(), gameData.gameOver()));
+                gameDao.create(new GameData(gameData.gameID(), newWhite, gameData.blackUsername(),
+                        gameData.gameName(), gameData.game(), gameData.gameOver()));
             }
 
 

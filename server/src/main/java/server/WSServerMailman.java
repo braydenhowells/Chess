@@ -187,7 +187,6 @@ public class WSServerMailman {
         }
 
         ChessGame game = gameData.game();
-
         // make sure it is our turn to move
         ChessGame.TeamColor turn = game.getTeamTurn();
         String whitePlayer = gameData.whiteUsername();
@@ -204,7 +203,6 @@ public class WSServerMailman {
 
         try {
             game.makeMove(move); // this will throw an exception if move is illegal
-
             // Persist updated game
             GameData updated = new GameData(
                     gameData.gameID(),
@@ -230,8 +228,6 @@ public class WSServerMailman {
             broadcastMessage(gameID, noti, username);
             // broadcast check/mate/stale if we need to
             checkGameState(game, gameData, gameID);
-
-
         } catch (Exception e) {
             sendError(session, "Invalid move: " + e.getMessage());
         }
@@ -271,7 +267,8 @@ public class WSServerMailman {
         boolean isInCheckmate = game.isInCheckmate(nextTurn);
         if (isInCheckmate) {
             ServerMessage checkmateMsg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            checkmateMsg.setMessage("Checkmate! " + winnerUsername + " (" + (currentTurn == ChessGame.TeamColor.WHITE ? "White" : "Black") + ") wins.");
+            checkmateMsg.setMessage("Checkmate! " + winnerUsername +
+                    " (" + (currentTurn == ChessGame.TeamColor.WHITE ? "White" : "Black") + ") wins.");
             broadcastMessage(gameID, checkmateMsg, null);
 
             // mark game over
@@ -310,7 +307,6 @@ public class WSServerMailman {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             return;
         }
 
@@ -321,8 +317,6 @@ public class WSServerMailman {
             broadcastMessage(gameID, checkMsg, null);
         }
     }
-
-
 
 
     private String unFormatPosition(ChessPosition pos) {
@@ -342,7 +336,6 @@ public class WSServerMailman {
             case 8 -> file = "h";
             default -> file = "?"; // just in case?? forces a default anyway
         }
-
         return file + rank; // as a string
     }
 
@@ -365,8 +358,6 @@ public class WSServerMailman {
             sendError(session, "Failed to resign, you are an observer.");
             return;
         }
-
-
 
         // same game but gameOver = true
         GameData updated = new GameData(
@@ -395,7 +386,6 @@ public class WSServerMailman {
         try {
             String authToken = command.getAuthToken();
             int gameID = command.getGameID();
-
             // validate auth
             AuthData authData = authService.getAuthData(authToken);
             if (authData == null) {
@@ -465,13 +455,11 @@ public class WSServerMailman {
     // method for sending messages to all users in a game except 1
     private void broadcastMessage(int gameID, ServerMessage message, String excludeThisUser) {
         CopyOnWriteArrayList<String> members = gameMembers.get(gameID);
-        if (members == null) return;
-
+        if (members == null) {return;}
         for (String username : members) {
             if (Objects.equals(username, excludeThisUser)) {
                 continue;
             }
-
             // manually get the gameID in case leaving the game did not remove it fast enough
             // race condition??
             Integer actualGameID = userToGame.get(username);
@@ -485,7 +473,6 @@ public class WSServerMailman {
             }
         }
     }
-
 
     private void sendMessage(Session session, ServerMessage msg) {
         try {

@@ -36,14 +36,17 @@ public class WSClient {
         WSClientMailman.handleServerMessage(message);
     }
 
+    @SuppressWarnings("unused")
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         System.out.println("connection closed: " + closeReason);
     }
 
+    @SuppressWarnings("unused")
     @OnError
     public void onError(Session session, Throwable throwable) {
         System.err.println("websocket error: ");
         throwable.printStackTrace();
     }
+
 }
