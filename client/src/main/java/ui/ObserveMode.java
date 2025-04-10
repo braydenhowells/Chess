@@ -19,8 +19,8 @@ public class ObserveMode implements ClientMode {
     private final String username;
     private final String gameID;
     private final String gameName;
-    private final String whiteUsername;
-    private final String blackUsername;
+    private String whiteUsername;
+    private String blackUsername;
     private final ChessGame game;
     private final String authToken;
 
@@ -126,7 +126,11 @@ public class ObserveMode implements ClientMode {
         this.game.setBoard(updatedGame.getBoard());
         new DrawBoard(this.game, true).draw(null);
         System.out.println(help());
+    }
 
+    public void updatePlayers(String newWhiteUsername, String newBlackUsername) {
+        this.blackUsername = newBlackUsername;
+        this.whiteUsername = newWhiteUsername;
     }
 
 }

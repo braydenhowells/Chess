@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessMove;
 import com.google.gson.Gson;
+import model.GameData;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -28,11 +29,27 @@ public class WSClientMailman {
                     gameMode.updateBoard(m.getGame().game());
                 } else if (currentMode instanceof ObserveMode observeMode) {
                     observeMode.updateBoard(m.getGame().game());
+                    GameData data = m.getGame();
+                    observeMode.updatePlayers(data.whiteUsername(), data.blackUsername());
                 }
             }
 
             case NOTIFICATION -> {
-                System.out.println("📢 " + m.getMessage());
+                // check to see if someone joined/left. if so, update players in observe mode
+                if (currentMode instanceof ObserveMode observeMode) {
+                    String message = m.getMessage();
+                    System.out.println(message);
+                    if (message != null && (message.contains("joined as") || message.contains("left"))) {
+                        GameData data = m.getGame();
+                        if (data != null) {
+                            observeMode.updatePlayers(data.whiteUsername(), data.blackUsername());
+                        }
+                        else {
+                            System.out.println("uh oh");
+                        }
+                    }
+                }
+                System.out.println("📢 " + m.getMessage()); // default
             }
 
             case ERROR -> {

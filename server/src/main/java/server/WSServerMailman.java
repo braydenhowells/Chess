@@ -107,6 +107,11 @@ public class WSServerMailman {
             Integer gameID = userToGame.get(dyingUser);
             ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             msg.setMessage(dyingUser + " left the game");
+            // this will help us to redraw after someone leaves for observer
+            GameData updatedGameData = gameService.findGame(String.valueOf(gameID));
+            if (updatedGameData != null) {
+                msg.setGame(updatedGameData); // ✅ observers now receive fresh player info
+            }
             broadcastMessage(gameID, msg, dyingUser);
         }
 
@@ -226,15 +231,26 @@ public class WSServerMailman {
             noti.setMessage(moveText);
             // goes to all users except the one who moved
             broadcastMessage(gameID, noti, username);
+
             // broadcast check/mate/stale if we need to
-            checkGameState(game, gameData, gameID);
+            try {
+                checkGameState(game, gameData, gameID);
+            } catch (Exception e) {
+                e.printStackTrace(); // ✅ show the real exception on server
+                sendError(session, "Game state error: " + (e.getMessage() != null ? e.getMessage() : "unknown"));
+            }
+
+
+
         } catch (Exception e) {
             sendError(session, "Invalid move: " + e.getMessage());
         }
     }
 
     private void checkGameState(ChessGame game, GameData gameData, int gameID) {
+        game.getTeamMoves();
         ChessGame.TeamColor nextTurn = game.getTeamTurn();
+        System.out.println("DEBUG next turn: " + nextTurn);
 
         String color = "";
         if (nextTurn == ChessGame.TeamColor.WHITE) {
@@ -264,6 +280,7 @@ public class WSServerMailman {
             winnerUsername = gameData.blackUsername();
         }
 
+        // make a copy of move list before looping internally
         boolean isInCheckmate = game.isInCheckmate(nextTurn);
         if (isInCheckmate) {
             ServerMessage checkmateMsg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
@@ -284,10 +301,10 @@ public class WSServerMailman {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             return;
         }
 
+        // make a copy of position list before looping internally
         boolean isStalemate = game.isInStalemate(nextTurn);
         if (isStalemate) {
             ServerMessage stalemateMsg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
@@ -309,6 +326,12 @@ public class WSServerMailman {
             }
             return;
         }
+
+        // debug 3 lines
+        System.out.println("⚠️ checkGameState fired for " + gameData.gameID());
+        System.out.println("Next turn: " + nextTurn);
+        System.out.println("Checking isInCheck(" + nextTurn + "): " + game.isInCheck(nextTurn));
+        game.getTeamMoves(); // refresh board state
 
         boolean isInCheck = game.isInCheck(nextTurn);
         if (isInCheck) {
@@ -432,6 +455,7 @@ public class WSServerMailman {
 
             // build NOTIFICATION for other members in game (if they exist)
             ServerMessage joinNoti = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            joinNoti.setGame(gameData); // for observe redraw
 
             if (currentUsername.equals(gameData.whiteUsername())) {
                 joinNoti.setMessage(currentUsername + " joined as WHITE");

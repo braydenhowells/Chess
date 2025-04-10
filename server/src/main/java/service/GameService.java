@@ -67,7 +67,6 @@ public class GameService {
         } catch (SQLException e) {
             return new ListResult(e.getMessage(), null);
         }
-
     }
 
     public GameData findGame(String gameID) {

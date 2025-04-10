@@ -14,7 +14,6 @@ public class ChessGame {
     private ChessPosition whiteKingPosition;
     private ChessPosition blackKingPosition;
 
-
     public ChessGame() {
         // setup
         this.board = new ChessBoard();
@@ -26,7 +25,6 @@ public class ChessGame {
         // get a normal board setup. this can be changed with setBoard for testing
         board.resetBoard();
     }
-
 
     public void getTeamMoves() {
         blackMoves.clear();
@@ -48,28 +46,24 @@ public class ChessGame {
                     continue;
                 }
 
+                // update the king position if applicable
+                if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
+                    if (boardPiece.getTeamColor() == TeamColor.BLACK) {
+                        blackKingPosition = boardPosition;
+                    } else {
+                        whiteKingPosition = boardPosition;
+                    }
+                }
+
                 // this is a real piece. see what color it is and add to list
                 if (boardPiece.getTeamColor() == TeamColor.BLACK) {
-                    // update the king position if applicable
-                    if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
-                        blackKingPosition = boardPosition;
-                    }
-                    // update all the moves for this piece
                     blackMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
-                    // add this position to our board
                     blackPositions.add(boardPosition);
                 }
                 if (boardPiece.getTeamColor() == TeamColor.WHITE) {
-                    // update the king position if applicable
-                    if (boardPiece.getPieceType() == ChessPiece.PieceType.KING) {
-                        whiteKingPosition = boardPosition;
-                    }
-                    // update all the moves for this piece
                     whiteMoves.addAll(boardPiece.pieceMoves(board, boardPosition));
-                    // add this position to our board
                     whitePositions.add(boardPosition);
                 }
-
             }
         }
     }
@@ -105,7 +99,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         // setup
         ChessPiece piece = board.getPiece(startPosition);
-        Collection<ChessMove> possibleMoves =  piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> filteredMoves = new ArrayList<>();
         ChessGame.TeamColor pieceColor = piece.getTeamColor();
 
@@ -113,43 +107,31 @@ public class ChessGame {
         if (lastOpponentMove != null) {
             if ((board.getPiece(lastOpponentMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN) &&
                     piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                // this means that the last move was a pawn and the current piece we are looking at is a pawn
                 checkEnPassant(lastOpponentMove, possibleMoves, pieceColor, startPosition);
             }
         }
 
-        // castle?? maybe someday sigh
-
-        // loop through a moveset for a piece. test each move: would this put us in check??
         for (ChessMove move : possibleMoves) {
-            // setup
             boolean isCapture = false;
             ChessPosition endPos = move.getEndPosition();
             ChessPosition startPos = move.getStartPosition();
             ChessPiece capturePiece;
-            // if we are capturing a piece during our theoretical move, we need to record what it was to put it back afterward
+
             if (board.getPiece(endPos) != null && !board.getPiece(endPos).getTeamColor().equals(piece.getTeamColor())) {
                 isCapture = true;
                 capturePiece = new ChessPiece(board.getPiece(endPos).getTeamColor(), board.getPiece(endPos).getPieceType());
-            }
-            else {
+            } else {
                 capturePiece = null;
             }
 
-            // now try making the move by "adding" that piece at the end position
             board.addPiece(endPos, piece);
-
-            // set the start position of piece currently moving to empty
             board.removePiece(startPos);
-            // update all possible moves to see if enemies can take the king now
             getTeamMoves();
 
-            // if we aren't in check now, then let's add our move to the list
             if (!isInCheck(pieceColor)) {
                 filteredMoves.add(move);
             }
 
-            // reset the board to make our next check
             board.addPiece(startPos, piece);
             board.removePiece(endPos);
             if (isCapture) {
@@ -157,140 +139,120 @@ public class ChessGame {
             }
         }
 
-        // make sure we return this to normal before we leave the function
         getTeamMoves();
         return filteredMoves;
     }
 
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        // setup
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPos);
-        // verify that a piece exists here
+
         if (piece == null) {
             throw new InvalidMoveException("Invalid Move! There is no piece at that location.");
         }
-        // verify piece color matches turn
         if (piece.getTeamColor() != turn) {
             throw new InvalidMoveException("Invalid Move! That piece does not belong to your team.");
         }
-        Collection<ChessMove> validMoves = validMoves(startPos);
 
-            // if we are not allowed to move here
+        Collection<ChessMove> validMoves = validMoves(startPos);
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Invalid Move!");
         }
 
-        // this path means we have a move that works
-        board.addPiece(endPos, piece); // overwrite our new position
-        board.removePiece(startPos); // erase our old position
+        board.addPiece(endPos, piece);
+        board.removePiece(startPos);
 
         if (lastOpponentMove != null && piece.getPieceType() == ChessPiece.PieceType.PAWN &&
                 lastOpponentMove.getEndPosition().getRow() == move.getStartPosition().getRow() &&
                 move.getEndPosition().getColumn() == lastOpponentMove.getEndPosition().getColumn()) {
-            // pawn just moved, pawn move currently being made, they are on the same row,
-            // AND the current pawn is moving to the column of the opposing pawn
             board.removePiece(lastOpponentMove.getEndPosition());
         }
 
-        // if the pawn was being promoted, put that piece on the end position
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN && move.getPromotionPiece() != null) {
             board.addPiece(endPos, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         }
 
-        // if king moved, update his position
+        // ✅ Fix: use actual team color, not turn
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-            if (turn == TeamColor.BLACK) {
+            if (piece.getTeamColor() == TeamColor.BLACK) {
                 blackKingPosition = endPos;
-            }
-            else {
+            } else {
                 whiteKingPosition = endPos;
             }
         }
 
-        // now we need to update our position lists
         getTeamMoves();
-
         lastOpponentMove = move;
 
-        // set game turn to other team
         if (turn == TeamColor.BLACK) {
             setTeamTurn(TeamColor.WHITE);
-        }
-        else {
+        } else {
             setTeamTurn(TeamColor.BLACK);
         }
     }
 
     public boolean isInCheck(TeamColor teamColor) {
-        // setup
         Collection<ChessMove> opponentMoves;
         ChessPosition kingPosition;
 
-        // need to see if current team color is in check, so declare what team are the opponents
         if (teamColor == TeamColor.BLACK) {
             opponentMoves = whiteMoves;
             kingPosition = blackKingPosition;
-
-        }
-        else {
+        } else {
             opponentMoves = blackMoves;
             kingPosition = whiteKingPosition;
         }
 
-        // find out if the other team could move to your kings location
+        if (kingPosition == null) {
+            System.err.println("⚠️ No king found for " + teamColor + " — skipping check detection.");
+            return false;
+        }
+
         for (ChessMove move : opponentMoves) {
-            ChessPosition endPos = move.getEndPosition();
-            if (endPos.equals(kingPosition)) {
-                return true; // there is an opposing piece that can capture our king!
+            if (move.getEndPosition().equals(kingPosition)) {
+                return true;
             }
         }
-        // this path means that no pieces can capture our king. we are NOT in check
         return false;
     }
 
     public boolean isInCheckmate(TeamColor teamColor) {
         Collection<ChessMove> teamMoves;
-        ChessGame.TeamColor oppositeColor;
         if (teamColor == TeamColor.WHITE) {
-            teamMoves = new ArrayList<>(whiteMoves); // make a copy instead
+            teamMoves = new ArrayList<>(whiteMoves);
+        } else {
+            teamMoves = new ArrayList<>(blackMoves);
+        }
 
-        }
-        else {
-            teamMoves = new ArrayList<>(blackMoves); // make a copy instead
-        }
-        // loop to evaluate each move. if we are not in check after making a move, then return false
         for (ChessMove move : teamMoves) {
-            // setup
             ChessPosition endPos = move.getEndPosition();
             ChessPosition startPos = move.getStartPosition();
             ChessPiece piece = board.getPiece(startPos);
             boolean isCapture = false;
             ChessPiece capturePiece;
 
-            // if we are capturing a piece during our theoretical move, we need to record what it was to put it back afterward
             if (board.getPiece(endPos) != null && !board.getPiece(endPos).getTeamColor().equals(piece.getTeamColor())) {
                 isCapture = true;
                 capturePiece = new ChessPiece(board.getPiece(endPos).getTeamColor(), board.getPiece(endPos).getPieceType());
-            }
-            else {
+            } else {
                 capturePiece = null;
             }
 
-            // make move
             board.addPiece(endPos, piece);
             board.removePiece(startPos);
-
-            // update opponent moves before evaluating check
             getTeamMoves();
 
-            // see if we are still in check. if not, return false
             if (!isInCheck(teamColor)) {
+                board.addPiece(startPos, piece);
+                board.removePiece(endPos);
+                if (isCapture) {
+                    board.addPiece(endPos, capturePiece);
+                }
+                getTeamMoves();
                 return false;
             }
 
-            // restore board to old state and then loop over other pieces
             board.addPiece(startPos, piece);
             board.removePiece(endPos);
             if (isCapture) {
@@ -299,34 +261,28 @@ public class ChessGame {
 
             getTeamMoves();
         }
-        // after the for loop, if we are still in check, then this is checkmate
         return true;
     }
 
     public boolean isInStalemate(TeamColor teamColor) {
-        // setup
         getTeamMoves();
         Collection<ChessPosition> positions;
         if (teamColor == TeamColor.BLACK) {
-            positions = blackPositions;
-        }
-        else {
-            positions = whitePositions;
+            positions = new ArrayList<>(blackPositions);
+        } else {
+            positions = new ArrayList<>(whitePositions);
         }
 
-        // condition 1: you are not in check
         if (isInCheck(teamColor)) {
             return false;
         }
 
-        // condition 2: you have no valid moves
         for (ChessPosition pos : positions) {
             if (!validMoves(pos).isEmpty()) {
                 return false;
             }
         }
 
-        // passed both conditions? return true
         return true;
     }
 
@@ -337,5 +293,13 @@ public class ChessGame {
 
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    public ChessPosition getWhiteKingPosition() {
+        return whiteKingPosition;
+    }
+
+    public ChessPosition getBlackKingPosition() {
+        return blackKingPosition;
     }
 }
