@@ -19,6 +19,7 @@ public class DrawBoard {
     }
 
     public void draw(Collection<ChessPosition> highlights) {
+        System.out.println(); // skip a line before printing
         // setup board and labels
         ChessBoard board = game.getBoard();
         // below we will draw NOT according to the counter (row or col) in the loops,

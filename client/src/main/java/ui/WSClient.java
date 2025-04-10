@@ -4,7 +4,7 @@ import javax.websocket.*;
 import java.net.URI;
 
 @ClientEndpoint // this tells java this class is a websocket client
-public class WSClient {
+public class WSClient extends Endpoint {
 
     private static Session session;
 
@@ -26,9 +26,8 @@ public class WSClient {
     }
 
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
         WSClient.session = session;
-        System.out.println("websocket connection established.");
     }
 
     @OnMessage
@@ -36,13 +35,11 @@ public class WSClient {
         WSClientMailman.handleServerMessage(message);
     }
 
-    @SuppressWarnings("unused")
+
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("connection closed: " + closeReason);
     }
 
-    @SuppressWarnings("unused")
     @OnError
     public void onError(Session session, Throwable throwable) {
         System.err.println("websocket error: ");

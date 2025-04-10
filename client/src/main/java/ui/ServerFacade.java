@@ -6,6 +6,7 @@ import java.io.*;
 
 
 import exception.ResponseException;
+import model.GameData;
 import requests.*;
 import results.CreateResult;
 import results.ListResult;
@@ -102,6 +103,19 @@ public class ServerFacade {
             return new SimpleResult(e.getMessage());
         }
     }
+
+    public GameData getGameData(String gameID) {
+        ListResult listResult = list();
+        if (listResult.games() == null) return null;
+
+        for (GameData game : listResult.games()) {
+            if (String.valueOf(game.gameID()).equals(gameID)) {
+                return game;
+            }
+        }
+        return null;
+    }
+
 
 
 

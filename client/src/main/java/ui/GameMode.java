@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import model.GameData;
 import requests.JoinRequest;
 
 import javax.websocket.ContainerProvider;
@@ -87,19 +88,7 @@ public class GameMode implements ClientMode {
                 return makeMove(params);
 
             case "resign":
-                String confirm = resignPrompt();
-                if (confirm == null) {
-                    System.out.println("Failed to resign, invalid input.");
-                    return this;
-                }
-
-                if (confirm.equals("Y")) {
-                    WSClientMailman.sendResign(authToken, Integer.parseInt(gameID));
-                    System.out.println("You have resigned. GG soldier.");
-                } else {
-                    System.out.println("Resign cancelled. Never give up!");
-                }
-                return this;
+                return attemptResign();
 
             case "leave":
                 WSClientMailman.sendLeave(authToken, Integer.parseInt(gameID)); // disconnect
@@ -121,6 +110,17 @@ public class GameMode implements ClientMode {
 
 
     private ClientMode highlight(String... params) {
+        GameData currentGame = facade.getGameData(gameID);
+        if (currentGame == null) {
+            System.out.println("Failed to find game data. Try again later.");
+            return this;
+        }
+
+        if (currentGame.gameOver()) {
+            System.out.println("There are no available moves for either team. This game is already over.");
+            return this;
+        }
+
         if (params.length != 1) {
             System.out.println("Usage: highlight <POSITION> (e.g. highlight e2)");
             return this;
@@ -132,13 +132,24 @@ public class GameMode implements ClientMode {
     public void updateBoard(ChessGame updatedGame) {
         this.game.setBoard(updatedGame.getBoard());
         this.game.setTeamTurn(updatedGame.getTeamTurn());
-        System.out.println("LOAD_GAME received");
         new DrawBoard(this.game, whitePerspective).draw(null);
         System.out.println(help());
 
     }
 
     private ClientMode makeMove(String... params) {
+        // check to see if the game is over
+        // sadly I kept this var in game data, so, like, oops
+        GameData currentGame = facade.getGameData(gameID);
+        if (currentGame == null) {
+            System.out.println("Failed to find game data. Try again later.");
+            return this;
+        }
+        if (currentGame.gameOver()) {
+            System.out.println("This game is already over. No more moves can be made.");
+            return this;
+        }
+
         if (params.length != 2) {
             System.out.println("Usage: move <FROM> <TO> (e.g. move e2 e4)");
             return this;
@@ -211,6 +222,35 @@ public class GameMode implements ClientMode {
         WSClientMailman.sendMakeMove(authToken, Integer.parseInt(gameID), move);
         return this;
     }
+
+    private ClientMode attemptResign() {
+        GameData currentGame = facade.getGameData(gameID);
+        if (currentGame == null) {
+            System.out.println("Failed to find game data. Try again later.");
+            return this;
+        }
+
+        if (currentGame.gameOver()) {
+            System.out.println("Failed to resign, this game is already over.");
+            return this;
+        }
+
+        String confirm = resignPrompt();
+        if (confirm == null) {
+            System.out.println("Failed to resign, invalid input.");
+            return this;
+        }
+
+        if (confirm.equals("Y")) {
+            WSClientMailman.sendResign(authToken, Integer.parseInt(gameID));
+            System.out.println("You have resigned. GG soldier.");
+        } else {
+            System.out.println("Resign cancelled. Never give up!");
+        }
+
+        return this;
+    }
+
 
     private String promoPrompt() {
         System.out.print("Promote to (Q, R, B, K): ");
